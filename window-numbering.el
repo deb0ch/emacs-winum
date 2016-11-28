@@ -257,27 +257,51 @@ Such a structure allows for per-frame bidirectional fast access.")
                'window-numbering--update)
   (setq window-numbering--frames-table nil))
 
-(defun window-numbering--list-windows-in-frame (&optional f)
-  "List windows in frame F using natural Emacs ordering."
-  (window-list f 0 (frame-first-window f)))
-
-(defun window-numbering--get-window-vector ()
-  "Return the window vector used to get a window given a number.
-This vector is not stored the same way depending on the value of
-`window-numbering-scope'."
+;; TODO bug: mode-line is sometimes not updated in all visible frames
+(defun window-numbering--update ()
+  "Update window numbers."
+  (setq window-numbering--remaining (window-numbering--get-available-numbers))
   (if (eq window-numbering-scope 'frame-local)
-      (car (gethash (selected-frame)
-                    window-numbering--frames-table))
-    window-numbering--window-vector))
+      (puthash (selected-frame)
+               (cons (make-vector 10 nil) (make-hash-table :size 10))
+               window-numbering--frames-table)
+    (setq window-numbering--window-vector (make-vector 10 nil))
+    (clrhash window-numbering--numbers-table))
+  (when (and window-numbering-auto-assign-0-to-minibuffer
+             (active-minibuffer-window))
+    (window-numbering--assign (active-minibuffer-window) 0))
+  (let ((windows (window-numbering--window-list)))
+    (run-hook-with-args 'window-numbering-before-hook windows)
+    (when window-numbering-assign-func
+      (mapc (lambda (w)
+              (with-selected-window w
+                (with-current-buffer (window-buffer w)
+                  (let ((num (funcall window-numbering-assign-func)))
+                    (when num
+                      (window-numbering--assign w num))))))
+            windows))
+    (dolist (w windows)
+      (window-numbering--assign w))))
 
-(defun window-numbering--get-numbers-table ()
-  "Return the numbers hashtable used to get a number given a window.
-This hashtable is not stored the same way depending on the value of
-`window-numbering-scope'"
-  (if (eq window-numbering-scope 'frame-local)
-      (cdr (gethash (selected-frame)
-                    window-numbering--frames-table))
-    window-numbering--numbers-table))
+(defun window-numbering--assign (window &optional number)
+  "Assign to window WINDOW the number NUMBER.
+If NUMBER is not specified, determine it first based on
+`window-numbering--remaining'.
+Returns the assigned number, or nil on error."
+  (if number
+      (if (aref (window-numbering--get-window-vector) number)
+          (progn (message "Number %s assigned to two buffers (%s and %s)"
+                          number window (aref window-numbering--window-vector number))
+                 nil)
+        (setf (aref (window-numbering--get-window-vector) number) window)
+        (puthash window number (window-numbering--get-numbers-table))
+        (setq window-numbering--remaining (delq number window-numbering--remaining))
+        number)
+    ;; else determine number and assign
+    (when window-numbering--remaining
+      (unless (gethash window (window-numbering--get-numbers-table))
+        (let ((number (car window-numbering--remaining)))
+          (window-numbering--assign window number))))))
 
 (defun window-numbering--window-list ()
   "Return a list of interesting windows."
@@ -305,25 +329,27 @@ This hashtable is not stored the same way depending on the value of
      (t
       (error "Invalid `window-numbering-scope': %S" window-numbering-scope)))))
 
-(defun window-numbering--assign (window &optional number)
-  "Assign to window WINDOW the number NUMBER.
-If NUMBER is not specified, determine it first based on
-`window-numbering--remaining'.
-Returns the assigned number, or nil on error."
-  (if number
-      (if (aref (window-numbering--get-window-vector) number)
-          (progn (message "Number %s assigned to two buffers (%s and %s)"
-                          number window (aref window-numbering--window-vector number))
-                 nil)
-        (setf (aref (window-numbering--get-window-vector) number) window)
-        (puthash window number (window-numbering--get-numbers-table))
-        (setq window-numbering--remaining (delq number window-numbering--remaining))
-        number)
-    ;; else determine number and assign
-    (when window-numbering--remaining
-      (unless (gethash window (window-numbering--get-numbers-table))
-        (let ((number (car window-numbering--remaining)))
-          (window-numbering--assign window number))))))
+(defun window-numbering--list-windows-in-frame (&optional f)
+  "List windows in frame F using natural Emacs ordering."
+  (window-list f 0 (frame-first-window f)))
+
+(defun window-numbering--get-window-vector ()
+  "Return the window vector used to get a window given a number.
+This vector is not stored the same way depending on the value of
+`window-numbering-scope'."
+  (if (eq window-numbering-scope 'frame-local)
+      (car (gethash (selected-frame)
+                    window-numbering--frames-table))
+    window-numbering--window-vector))
+
+(defun window-numbering--get-numbers-table ()
+  "Return the numbers hashtable used to get a number given a window.
+This hashtable is not stored the same way depending on the value of
+`window-numbering-scope'"
+  (if (eq window-numbering-scope 'frame-local)
+      (cdr (gethash (selected-frame)
+                    window-numbering--frames-table))
+    window-numbering--numbers-table))
 
 (defun window-numbering--get-available-numbers (&optional windows)
   "Return a list of numbers currently available for assignment.
@@ -339,32 +365,6 @@ WINDOWS: a vector of currently assigned windows."
       (decf i))
     left))
 
-;; TODO bug: mode-line is sometimes not updated in all visible frames
-(defun window-numbering--update ()
-  "Update window numbers."
-  (setq window-numbering--remaining (window-numbering--get-available-numbers))
-  (if (eq window-numbering-scope 'frame-local)
-      (puthash (selected-frame)
-               (cons (make-vector 10 nil) (make-hash-table :size 10))
-               window-numbering--frames-table)
-    (setq window-numbering--window-vector (make-vector 10 nil))
-    (clrhash window-numbering--numbers-table))
-  (when (and window-numbering-auto-assign-0-to-minibuffer
-             (active-minibuffer-window))
-    (window-numbering--assign (active-minibuffer-window) 0))
-  (let ((windows (window-numbering--window-list)))
-    (run-hook-with-args 'window-numbering-before-hook windows)
-    (when window-numbering-assign-func
-      (mapc (lambda (w)
-              (with-selected-window w
-                (with-current-buffer (window-buffer w)
-                  (let ((num (funcall window-numbering-assign-func)))
-                    (when num
-                      (window-numbering--assign w num))))))
-            windows))
-    (dolist (w windows)
-      (window-numbering--assign w))))
-
 (defun window-numbering--switch-to-window (window)
   "Switch to the window WINDOW and switch input focus if on a different frame."
   (let ((frame (window-frame window)))
@@ -375,7 +375,9 @@ WINDOWS: a vector of currently assigned windows."
         (select-window window)
       (error "Got a dead window %S" window))))
 
-(push "^No window numbered .$" debug-ignored-errors)
+(push "^No window numbered .$"                debug-ignored-errors)
+(push "^Got a dead window .$"                 debug-ignored-errors)
+(push "^Invalid `window-numbering-scope': .$" debug-ignored-errors)
 
 (provide 'window-numbering)
 
