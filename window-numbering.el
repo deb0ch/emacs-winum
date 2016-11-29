@@ -27,8 +27,8 @@
 ;;
 ;;; Commentary:
 ;;
-;; This project is an extended and actively maintained version of
-;; window-numbering.el
+;; An extended and actively maintained version of the window-numbering package
+;; written by Nikolaj Schumacher
 ;;
 ;; Bla bla bla disclaimer, links & credits to original project, ace-window
 ;; etc...
@@ -40,6 +40,23 @@
 (defgroup window-numbering nil
   "Navigate and manage windows using numbers."
   :group 'convenience)
+
+;; TODO when changed from frame-local to non-local in customize, need to force
+;;      update, or `window-numbering-get-number' fails and crashes the modeline
+;;      until next update.
+(defcustom window-numbering-scope 'global
+  "The scope of number sets."
+  :group 'window-numbering
+  :type '(choice
+          (const :tag "frame local" frame-local)
+          (const :tag "visible frames" visible)
+          (const :tag "global" global)))
+
+(defcustom window-numbering-reverse-frame-list nil
+  "If t, order frames by reverse order of creation.
+Has effect only when `window-numbering-scope' is not 'frame-local."
+  :group 'window-numbering
+  :type 'boolean)
 
 (defcustom window-numbering-auto-assign-0-to-minibuffer t
   "If non-nil, `window-numbering-mode' assigns 0 to the minibuffer if active."
@@ -67,23 +84,6 @@ return a number to have it assigned to the current-window, nil otherwise."
   :group 'window-numbering
   :type 'integer)
 
-;; TODO when changed from frame-local to non-local in customize, need to force
-;;      update, or `window-numbering-get-number' fails and crashes the modeline
-;;      until next update.
-(defcustom window-numbering-scope 'global
-  "The scope of number sets."
-  :group 'window-numbering
-  :type '(choice
-          (const :tag "frame local" frame-local)
-          (const :tag "visible frames" visible)
-          (const :tag "global" global)))
-
-(defcustom window-numbering-reverse-frame-list nil
-  "If t, order frames by reverse order of creation.
-Has effect only when `window-numbering-scope' is not 'frame-local."
-  :group 'window-numbering
-  :type 'boolean)
-
 (defface window-numbering-face '()
   "Face used for the number in the mode-line."
   :group 'window-numbering)
@@ -106,7 +106,7 @@ Has effect only when `window-numbering-scope' is not 'frame-local."
 (define-minor-mode window-numbering-mode
   "A minor mode that allows for managing windows based on window numbers."
   nil                                   ; initial value of the mode variable
-  nil                                   ; lighter (name in mode-line)
+  nil                                   ; lighter (appearance in mode-line)
   window-numbering-keymap               ; keymap
   :global t
   (if window-numbering-mode
