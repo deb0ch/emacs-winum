@@ -86,6 +86,10 @@ return a number to have it assigned to the current-window, nil otherwise."
   :group 'window-numbering
   :type  'integer)
 
+(defcustom window-numbering--window-number-max 10
+  "Max number of windows that can be numbered."
+  :group 'window-numbering
+  :type  'integer)
 
 (defface window-numbering-face '()
   "Face used for the number in the mode-line."
@@ -117,7 +121,7 @@ return a number to have it assigned to the current-window, nil otherwise."
     (window-numbering--deinit)))
 
 ;; define interactive functions window-numbering-select-window-[0..n]
-(dotimes (i 10)
+(dotimes (i window-numbering--window-number-max)
   (eval `(defun ,(intern (format "select-window-%s" i)) (&optional arg)
            ,(format "Jump to window %d.\nIf prefix ARG is given, delete the\
  window instead of selecting it." i)
@@ -142,7 +146,7 @@ If prefix ARG is given, delete the window instead of selecting it."
                                    window-numbering--frames-table))
                    window-numbering--window-vector))
         window)
-    (if (and (>= i 0) (< i 10)
+    (if (and (>= i 0) (< i window-numbering--window-number-max)
              (setq window (aref windows i)))
         window
       (error "No window numbered %s" i))))
@@ -204,11 +208,7 @@ WINDOW: if specified, the window of which we want to know the number.
 
 ;; Internal variables
 
-(defvar window-numbering--window-number-max 10 ;; TODO replace hard-coded values
-                                               ;; by this var
-  "Max number of windows that can be numbered.")
-
-(defvar window-numbering--max-frames-count 16
+(defvar window-numbering--max-frames 16
   "Maximum number of frames that can be numbered.")
 
 (defvar window-numbering--window-vector nil
@@ -239,35 +239,32 @@ Such a structure allows for per-frame bidirectional fast access.")
 
 (defun window-numbering--init ()
   "Initialize window-numbering-mode."
-  (unless window-numbering--frames-table
-    (save-excursion ;; TODO is this really needed ?
-      (if (eq window-numbering-scope 'frame-local)
-          (setq window-numbering--frames-table (make-hash-table :size 16))
-        (setq window-numbering--numbers-table (make-hash-table :size 10)))
-      (window-numbering-install-mode-line)
-      (add-hook 'minibuffer-setup-hook 'window-numbering--update)
-      (add-hook 'window-configuration-change-hook
-                'window-numbering--update)
-      (dolist (frame (frame-list))
-        (select-frame frame)
-        (window-numbering--update)))))
+  (if (eq window-numbering-scope 'frame-local)
+      (setq window-numbering--frames-table (make-hash-table :size window-numbering--max-frames))
+    (setq window-numbering--numbers-table (make-hash-table :size window-numbering--window-number-max)))
+  (window-numbering-install-mode-line)
+  (add-hook 'minibuffer-setup-hook 'window-numbering--update)
+  (add-hook 'window-configuration-change-hook 'window-numbering--update)
+  (dolist (frame (frame-list))
+    (select-frame frame)
+    (window-numbering--update)))
 
 (defun window-numbering--deinit ()
   "Actions performed when turning off window-numbering-mode."
   (window-numbering-clear-mode-line)
   (remove-hook 'minibuffer-setup-hook 'window-numbering--update)
-  (remove-hook 'window-configuration-change-hook
-               'window-numbering--update)
+  (remove-hook 'window-configuration-change-hook 'window-numbering--update)
   (setq window-numbering--frames-table nil))
 
 (defun window-numbering--update ()
   "Update window numbers."
-  (setq window-numbering--remaining (window-numbering--get-available-numbers))
+  (setq window-numbering--remaining (window-numbering--available-numbers))
   (if (eq window-numbering-scope 'frame-local)
       (puthash (selected-frame)
-               (cons (make-vector 10 nil) (make-hash-table :size 10))
+               (cons (make-vector window-numbering--window-number-max nil)
+                     (make-hash-table :size window-numbering--window-number-max))
                window-numbering--frames-table)
-    (setq window-numbering--window-vector (make-vector 10 nil))
+    (setq window-numbering--window-vector (make-vector window-numbering--window-number-max nil))
     (clrhash window-numbering--numbers-table))
   (when (and window-numbering-auto-assign-0-to-minibuffer
              (active-minibuffer-window))
@@ -353,19 +350,13 @@ This hashtable is not stored the same way depending on the value of
                     window-numbering--frames-table))
     window-numbering--numbers-table))
 
-(defun window-numbering--get-available-numbers (&optional windows)
-  "Return a list of numbers currently available for assignment.
-WINDOWS: a vector of currently assigned windows."
-  ;; TODO simplify, the WINDOWS argument is not needed in the current
-  ;;      implementation.
-  (let ((i 9)
-        left)
-    (while (>= i 0)
-      (let ((window (when windows (aref windows i))))
-        (unless window
-          (push (% (1+ i) 10) left)))
-      (decf i))
-    left))
+(defun window-numbering--available-numbers ()
+  "Return a list of numbers from 1 to `window-numbering--window-number-max'.
+0 is the last element of the list."
+  (let ((numbers))
+    (dotimes (i window-numbering--window-number-max)
+      (push (% (1+ i) window-numbering--window-number-max) numbers))
+    (nreverse numbers)))
 
 (defun window-numbering--switch-to-window (window)
   "Switch to the window WINDOW and switch input focus if on a different frame."
