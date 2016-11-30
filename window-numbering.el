@@ -91,6 +91,10 @@ return a number to have it assigned to the current-window, nil otherwise."
   :group 'window-numbering
   :type  'integer)
 
+(defcustom window-numbering-ignored-buffers '(" *which-key*")
+  "List of buffers to ignore when selecting window."
+  :type '(repeat string))
+
 (defface window-numbering-face '()
   "Face used for the number in the mode-line."
   :group 'window-numbering)
@@ -310,8 +314,7 @@ Returns the assigned number, or nil on error."
        (or (not (and (frame-live-p f)
                      (frame-visible-p f)))
            (string= "initial_terminal" (terminal-name f))
-           ;; (window-numbering-ignored-p w) ;; TODO implement
-           )))
+           (member (buffer-name (window-buffer w)) window-numbering-ignored-buffers))))
    (cl-case window-numbering-scope
      (global
       (cl-mapcan 'window-numbering--list-windows-in-frame
