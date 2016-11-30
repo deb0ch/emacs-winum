@@ -27,41 +27,43 @@
 ;;
 ;;; Commentary:
 ;;
-;; An extended and actively maintained version of the window-numbering package
-;; written by Nikolaj Schumacher
+;; Window numbers for Emacs: Navigate your windows and frames using numbers.
 ;;
-;; Bla bla bla disclaimer, links & credits to original project, ace-window
-;; etc...
+;; This package is an extended and actively maintained version of the
+;; https://github.com/nschum/window-numbering.el package by Nikolaj Schumacher,
+;; with some ideas and code taken from https://github.com/abo-abo/ace-window.
 ;;
 ;;; Code:
 
 (eval-when-compile (require 'cl))
 
+;; TODO rename to 'winum.el' and keep backward compatibility
+
 (defgroup window-numbering nil
   "Navigate and manage windows using numbers."
   :group 'convenience)
 
-;; TODO when changed from frame-local to non-local in customize, need to force
-;;      update, or `window-numbering-get-number' fails and crashes the modeline
-;;      until next update.
+;; TODO bug: when changed from frame-local to non-local in customize, need to
+;;      force update or `window-numbering-get-number' fails and messes the
+;;      modeline until next update.
 (defcustom window-numbering-scope 'global
   "The scope of number sets."
   :group 'window-numbering
-  :type '(choice
-          (const :tag "frame local" frame-local)
-          (const :tag "visible frames" visible)
-          (const :tag "global" global)))
+  :type  '(choice
+           (const :tag "frame local" frame-local)
+           (const :tag "visible frames" visible)
+           (const :tag "global" global)))
 
 (defcustom window-numbering-reverse-frame-list nil
   "If t, order frames by reverse order of creation.
 Has effect only when `window-numbering-scope' is not 'frame-local."
   :group 'window-numbering
-  :type 'boolean)
+  :type  'boolean)
 
 (defcustom window-numbering-auto-assign-0-to-minibuffer t
   "If non-nil, `window-numbering-mode' assigns 0 to the minibuffer if active."
   :group 'window-numbering
-  :type 'boolean)
+  :type  'boolean)
 
 (defcustom window-numbering-before-hook nil
   "Hook called before `window-numbering-mode' starts assigning numbers.
@@ -70,19 +72,20 @@ Use `window-numbering--assign' to manually assign some of them a number.
 If you want to assign a number to just one buffer, use
 `window-numbering-assign-func' instead."
   :group 'window-numbering
-  :type 'hook)
+  :type  'hook)
 
 (defcustom window-numbering-assign-func nil
   "Function called for each window by `window-numbering-mode'.
 This is called before automatic assignment begins.  The function should
 return a number to have it assigned to the current-window, nil otherwise."
   :group 'window-numbering
-  :type 'function)
+  :type  'function)
 
 (defcustom window-numbering-mode-line-position 1
   "The position in the mode-line `window-numbering-mode' displays the number."
   :group 'window-numbering
-  :type 'integer)
+  :type  'integer)
+
 
 (defface window-numbering-face '()
   "Face used for the number in the mode-line."
@@ -105,9 +108,9 @@ return a number to have it assigned to the current-window, nil otherwise."
 ;;;###autoload
 (define-minor-mode window-numbering-mode
   "A minor mode that allows for managing windows based on window numbers."
-  nil                                   ; initial value of the mode variable
-  nil                                   ; lighter (appearance in mode-line)
-  window-numbering-keymap               ; keymap
+  nil
+  nil
+  window-numbering-keymap
   :global t
   (if window-numbering-mode
       (window-numbering--init)
@@ -257,7 +260,6 @@ Such a structure allows for per-frame bidirectional fast access.")
                'window-numbering--update)
   (setq window-numbering--frames-table nil))
 
-;; TODO bug: mode-line is sometimes not updated in all visible frames
 (defun window-numbering--update ()
   "Update window numbers."
   (setq window-numbering--remaining (window-numbering--get-available-numbers))
