@@ -1,0 +1,145 @@
+[[https://github.com/syl20bnr/spacemacs][file:https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg]]
+
+#+TITLE: Window numbers for Emacs !
+
+* Contents :TOC:
+ - [[#introduction][Introduction]]
+ - [[#installation][Installation]]
+ - [[#how-to-use][How to use]]
+   - [[#navigate-windows][Navigate windows]]
+   - [[#delete-windows][Delete windows]]
+ - [[#configuration][Configuration]]
+   - [[#custom-keymap][Custom keymap]]
+   - [[#customize-options][Customize options]]
+
+* Introduction
+Window numbers for Emacs: Navigate your windows and frames using numbers !
+
+This package is an extended and actively maintained version of the
+https://github.com/nschum/window-numbering.el package by Nikolaj Schumacher,
+with some ideas and code taken from https://github.com/abo-abo/ace-window.
+
+This version brings, among other things, support for number sets across multiple
+frames, giving the user a smoother experience of multi-screen Emacs.
+
+* Installation
+
+- Clone the repo:
+
+#+BEGIN_SRC shell
+  cd /path/to/install/folder
+  git clone https://github.com/deb0ch/winum.el
+#+END_SRC
+
+- Add the following to your Emacs configuration:
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path "/path/to/install/folder/winum.el/")
+
+  (require 'window-numbering)
+
+  (window-numbering-mode)
+#+END_SRC
+
+
+* How to use
+** Navigate windows
+Use ~M-1~ to ~M-9~ to navigate windows numbered 1 to 9.
+
+The functions for selecting windows are the =select-window-[1..N]= functions,
+where N is the maximum window number.
+
+See [[#configuration][configuration]] to rebind them any way you prefer.
+
+** Delete windows
+Use ~M-1~ to ~M-9~ with an Emacs prefix argument to delete a window instead of
+selecting it.
+
+* Configuration
+** Custom keymap
+   To define your own bindings and override the default ones, override
+   =window-numbering-keymap= before activating the mode:
+
+   #+BEGIN_SRC emacs-lisp
+  (require 'window-numbering)
+
+  (setq window-numbering-keymap (let ((map (make-sparse-keymap)))
+				  (define-key map "\M-m 0" 'select-window-0)
+				  ; ...
+				  (define-key map "\M-m 9" 'select-window-9)
+				  map))
+  (window-numbering-mode)
+#+END_SRC
+
+This way your bindings will not error when the mode is turned off.
+
+** Customize options
+
+Several options are available through Emacs' =Customize= interface under
+=convenience= > =window-numbering=:
+
+- =window-numbering-scope=
+
+Frames affected by a number set. Choices are 'frame-local 'visible or 'global.
+
+Default: 'global
+
+- =window-numbering-reverse-frame-list=
+
+If t, order frames by reverse order of creation. Has effect only when
+`window-numbering-scope' is not 'frame-local.
+
+Default: nil
+
+- =window-numbering-auto-assign-0-to-minibuffer=
+
+If non-nil, =window-numbering-mode= assigns 0 to the minibuffer if active.
+
+Default: t
+
+- =window-numbering-before-hook=
+
+Hook called before =window-numbering-mode= starts assigning numbers. The list of
+windows to be numbered is passed as a parameter. Use =window-numbering--assign=
+to manually assign some of them a number. If you want to assign a number to just
+one buffer, use =window-numbering-assign-func= instead.
+
+Default: nil
+
+- =window-numbering-assign-func=
+
+Function called for each window by =window-numbering-mode=. This is called
+before automatic assignment begins. The function should return a number to have
+it assigned to the current-window, nil otherwise.
+
+Default: nil
+
+Example: always assign the calculator window the number 9:
+
+#+BEGIN_SRC emacs-lisp
+    (setq window-numbering-assign-func
+	  (lambda () (when (equal (buffer-name) "*Calculator*") 9)))
+#+END_SRC
+
+- =window-numbering-mode-line-position=
+
+The position in the mode-line `window-numbering-mode' displays the number.
+
+Default: 1
+
+- =window-numbering-window-number-max= 10
+
+Max number of windows that can be numbered.
+
+Default: 10
+
+- =window-numbering-ignored-buffers=
+
+List of buffers to ignore when selecting window.
+
+Default: '(" *which-key*")
+
+- face: =window-numbering-face=
+
+Face used for the number in the mode-line.
+
