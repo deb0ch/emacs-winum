@@ -135,15 +135,32 @@ return a number to have it assigned to the current-window, nil otherwise."
            ,(format "Jump to window %d.\nIf prefix ARG is given, delete the\
  window instead of selecting it." i)
            (interactive "P")
-           (select-window-by-number ,i arg))))
+           (let ((n (if arg (- ,i) ,i)))
+             (select-window-by-number n)))))
 
-;;;###autoload
-(defun select-window-by-number (i &optional arg)
-  "Select window given number I by `winum-mode'.
-If prefix ARG is given, delete the window instead of selecting it."
+(defun select-window-by-number (&optional arg)
+  "Select or delete window iwhich number is specified by ARG.
+If the number is negative, delete the window instead of selecting it.
+There are several ways to provide the number:
+- if called from elisp with an argument, use it.
+- if called interactively with a numeric prefix argument, use it.
+- if prefix argument is the negative argument, delete the window.
+- if called interactively and no valid argument is provided, read from
+  minibuffer."
   (interactive "P")
-  (let ((w (winum-get-window-by-number i)))
-    (if arg
+  (let* ((n (cond
+             ((integerp arg) arg)
+             ((eq arg '-) (- (winum-get-number))) ; negative-argument
+             (arg (winum-get-number))
+             ((called-interactively-p 'any)
+              (let ((user-input-str (read-from-minibuffer "Window: ")))
+                (if (not (string-match-p "[+-]?[0-9]+\.*" user-input-str))
+                    (winum-get-number)
+                  (string-to-number user-input-str))))
+             (t (winum-get-number))))
+         (w (winum-get-window-by-number (abs n)))
+         (delete (> 0 n)))
+    (if delete
         (delete-window w)
       (winum--switch-to-window w))))
 
