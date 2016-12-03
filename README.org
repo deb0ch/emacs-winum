@@ -2,7 +2,12 @@
 
 #+TITLE: Window numbers for Emacs !
 
+**** TODO better example for assign-func
+**** TODO example with all options
+
 * Contents :TOC:
+       - [[#better-example-for-assign-func][better example for assign-func]]
+       - [[#example-with-all-options][example with all options]]
  - [[#introduction][Introduction]]
  - [[#installation][Installation]]
  - [[#how-to-use][How to use]]

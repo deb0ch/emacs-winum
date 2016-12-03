@@ -37,8 +37,12 @@
 
 (eval-when-compile (require 'cl))
 
+;; TODO set more than 10 windows
+;; TODO 0 should only be assigned manually
+;;          -> what to do to not waste the 0 key then ?
+;;          -> assign "\M-0" to `select-window-10' in the keymap
+;;          -> what to do with `select-window-0' then ?
 ;; TODO make mode-line installation optional
-
 ;; TODO bug: Error during redisplay: (eval (winum-get-number-string)) signaled
 ;;      (wrong-type-argument numberp nil) when opening a helm buffer.
 
@@ -90,7 +94,6 @@ return a number to have it assigned to the current-window, nil otherwise."
   :group 'winum
   :type  'integer)
 
-;; TODO other values note tested
 (defcustom winum-window-number-max 10
   "Max number of windows that can be numbered."
   :group 'winum
@@ -138,6 +141,9 @@ return a number to have it assigned to the current-window, nil otherwise."
            (let ((n (if arg (- ,i) ,i)))
              (select-window-by-number n)))))
 
+;; TODO figure out a way of deleting window 0
+;;      -> maybe the negative argument alone could delete window 0 instead of
+;;         the current window ?
 (defun select-window-by-number (&optional arg)
   "Select or delete window iwhich number is specified by ARG.
 If the number is negative, delete the window instead of selecting it.
@@ -369,6 +375,7 @@ This hashtable is not stored the same way depending on the value of
                     winum--frames-table))
     winum--numbers-table))
 
+;; TODO make maximum window number dynamic
 (defun winum--available-numbers ()
   "Return a list of numbers from 1 to `winum-window-number-max'.
 0 is the last element of the list."
