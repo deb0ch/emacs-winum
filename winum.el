@@ -72,16 +72,6 @@ Has effect only when `winum-scope' is not 'frame-local."
   :group 'winum
   :type  'boolean)
 
-;; TODO see if useful
-(defcustom winum-before-hook nil
-  "Hook called before `winum-mode' starts assigning numbers.
-The list of windows to be numbered is passed as a parameter.
-Use `winum--assign' to manually assign some of them a number.
-If you want to assign a number to just one buffer, use
-`winum-assign-func' instead."
-  :group 'winum
-  :type  'hook)
-
 (defcustom winum-assign-func nil
   "Function called for each window by `winum-mode'.
 This is called before automatic assignment begins.  The function should
@@ -296,7 +286,6 @@ POSITION: position in the mode-line."
              (active-minibuffer-window))
     (winum--assign (active-minibuffer-window) 0))
   (let ((windows (winum--window-list)))
-    (run-hook-with-args 'winum-before-hook windows)
     (when winum-assign-func
       (mapc (lambda (w)
               (with-selected-window w

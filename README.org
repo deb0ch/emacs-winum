@@ -102,15 +102,6 @@ If non-nil, =winum-mode= assigns 0 to the minibuffer if active.
 
 Default: t
 
-- =winum-before-hook=
-
-Hook called before =winum-mode= starts assigning numbers. The list of
-windows to be numbered is passed as a parameter. Use =winum--assign=
-to manually assign some of them a number. If you want to assign a number to just
-one buffer, use =winum-assign-func= instead.
-
-Default: nil
-
 - =winum-assign-func=
 
 Function called for each window by =winum-mode=. This is called
