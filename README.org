@@ -36,9 +36,9 @@ frames, giving the user a smoother experience of multi-screen Emacs.
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path "/path/to/install/folder/winum.el/")
 
-  (require 'window-numbering)
+  (require 'winum)
 
-  (window-numbering-mode)
+  (winum-mode)
 #+END_SRC
 
 
@@ -58,17 +58,17 @@ selecting it.
 * Configuration
 ** Custom keymap
    To define your own bindings and override the default ones, override
-   =window-numbering-keymap= before activating the mode:
+   =winum-keymap= before activating the mode:
 
    #+BEGIN_SRC emacs-lisp
-  (require 'window-numbering)
+     (require 'winum)
 
-  (setq window-numbering-keymap (let ((map (make-sparse-keymap)))
-				  (define-key map "\M-m 0" 'select-window-0)
-				  ; ...
-				  (define-key map "\M-m 9" 'select-window-9)
-				  map))
-  (window-numbering-mode)
+     (setq winum-keymap (let ((map (make-sparse-keymap)))
+			  (define-key map "\M-m 0" 'select-window-0)
+					     ; ...
+			  (define-key map "\M-m 9" 'select-window-9)
+			  map))
+     (winum-mode)
 #+END_SRC
 
 This way your bindings will not error when the mode is turned off.
@@ -76,39 +76,39 @@ This way your bindings will not error when the mode is turned off.
 ** Customize options
 
 Several options are available through Emacs' =Customize= interface under
-=convenience= > =window-numbering=:
+=convenience= > =winum=:
 
-- =window-numbering-scope=
+- =winum-scope=
 
 Frames affected by a number set. Choices are 'frame-local 'visible or 'global.
 
 Default: 'global
 
-- =window-numbering-reverse-frame-list=
+- =winum-reverse-frame-list=
 
 If t, order frames by reverse order of creation. Has effect only when
-`window-numbering-scope' is not 'frame-local.
+`winum-scope' is not 'frame-local.
 
 Default: nil
 
-- =window-numbering-auto-assign-0-to-minibuffer=
+- =winum-auto-assign-0-to-minibuffer=
 
-If non-nil, =window-numbering-mode= assigns 0 to the minibuffer if active.
+If non-nil, =winum-mode= assigns 0 to the minibuffer if active.
 
 Default: t
 
-- =window-numbering-before-hook=
+- =winum-before-hook=
 
-Hook called before =window-numbering-mode= starts assigning numbers. The list of
-windows to be numbered is passed as a parameter. Use =window-numbering--assign=
+Hook called before =winum-mode= starts assigning numbers. The list of
+windows to be numbered is passed as a parameter. Use =winum--assign=
 to manually assign some of them a number. If you want to assign a number to just
-one buffer, use =window-numbering-assign-func= instead.
+one buffer, use =winum-assign-func= instead.
 
 Default: nil
 
-- =window-numbering-assign-func=
+- =winum-assign-func=
 
-Function called for each window by =window-numbering-mode=. This is called
+Function called for each window by =winum-mode=. This is called
 before automatic assignment begins. The function should return a number to have
 it assigned to the current-window, nil otherwise.
 
@@ -117,29 +117,29 @@ Default: nil
 Example: always assign the calculator window the number 9:
 
 #+BEGIN_SRC emacs-lisp
-    (setq window-numbering-assign-func
+    (setq winum-assign-func
 	  (lambda () (when (equal (buffer-name) "*Calculator*") 9)))
 #+END_SRC
 
-- =window-numbering-mode-line-position=
+- =winum-mode-line-position=
 
-The position in the mode-line `window-numbering-mode' displays the number.
+The position in the mode-line `winum-mode' displays the number.
 
 Default: 1
 
-- =window-numbering-window-number-max= 10
+- =winum-window-number-max= 10
 
 Max number of windows that can be numbered.
 
 Default: 10
 
-- =window-numbering-ignored-buffers=
+- =winum-ignored-buffers=
 
 List of buffers to ignore when selecting window.
 
 Default: '(" *which-key*")
 
-- face: =window-numbering-face=
+- face: =winum-face=
 
 Face used for the number in the mode-line.
 
