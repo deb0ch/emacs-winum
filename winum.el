@@ -135,12 +135,11 @@ numbers in the mode-line.")
       (winum--init)
     (winum--deinit)))
 
-;; TODO test select-window-0-or-10
 (defun select-window-0-or-10 (&optional arg)
   "Jump to window 0 if assigned or 10 if exists.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
-  (let ((n (if (winum-get-number 0)
+  (let ((n (if (winum-get-window-by-number 0)
                (if arg '- 0)
              (if arg -10 10))))
     (select-window-by-number n)))
@@ -237,7 +236,7 @@ There are several ways to provide the number:
     (if (and (>= n 0) (< n (1+ winum--window-count))
              (setq window (aref windows n)))
         window
-      (error "No window numbered %s" n))))
+      nil)))
 
 ;;;###autoload
 (defun winum-get-number-string (&optional window)
@@ -356,9 +355,6 @@ POSITION: position in the mode-line."
                  winum--frames-table)
       (setq winum--window-vector (make-vector (1+ winum--window-count) nil))
       (clrhash winum--numbers-table))
-    (when (and winum-auto-assign-0-to-minibuffer
-               (active-minibuffer-window))
-      (winum--assign (active-minibuffer-window) 0))
     (when winum-assign-func
       (mapc (lambda (w)
               (with-selected-window w
@@ -367,6 +363,10 @@ POSITION: position in the mode-line."
                     (when num
                       (winum--assign w num))))))
             windows))
+    (when (and winum-auto-assign-0-to-minibuffer
+               (active-minibuffer-window)
+               (not (winum-get-window-by-number 0)))
+      (winum--assign (active-minibuffer-window) 0))
     (dolist (w windows)
       (winum--assign w))))
 
@@ -377,8 +377,8 @@ If NUMBER is not specified, determine it first based on
 Returns the assigned number, or nil on error."
   (if number
       (if (aref (winum--get-window-vector) number)
-          (progn (message "Number %s assigned to two buffers (%s and %s)"
-                          number window (aref winum--window-vector number))
+          (progn (message "Number %s already assigned to %s, can't assign to %s"
+                          number (aref winum--window-vector number) window)
                  nil)
         (setf (aref (winum--get-window-vector) number) window)
         (puthash window number (winum--get-numbers-table))
@@ -456,7 +456,6 @@ using the `winum-assign-func', or using `winum-auto-assign-0-to-minibuffer'."
         (select-window window)
       (error "Got a dead window %S" window))))
 
-(push "^No window numbered .$"     debug-ignored-errors)
 (push "^Got a dead window .$"      debug-ignored-errors)
 (push "^Invalid `winum-scope': .$" debug-ignored-errors)
 
