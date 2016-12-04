@@ -37,21 +37,16 @@
 
 (eval-when-compile (require 'cl))
 
-;; TODO 0 should only be assigned manually
-;;          -> what to do to not waste the 0 key then ?
-;;          -> assign "\M-0" to `select-window-10' in the keymap
-;;          -> what to do with `select-window-0' then ?
-;; TODO make mode-line installation optional
-;; TODO bug: Error during redisplay: (eval (winum-get-number-string)) signaled
-;;      (wrong-type-argument numberp nil) when opening a helm buffer.
+;; FIXME: Error during redisplay: (eval (winum-get-number-string)) signaled
+;;        (wrong-type-argument numberp nil) when opening a helm buffer.
 
 (defgroup winum nil
   "Navigate and manage windows using numbers."
   :group 'convenience)
 
-;; TODO bug: when changed from frame-local to non-local in customize, need to
-;;      force update or `winum-get-number' fails and messes the
-;;      modeline until next update.
+;; FIXME: when changed from frame-local to non-local in customize, need to
+;;        force update or `winum-get-number' fails and messes the
+;;        modeline until next update.
 (defcustom winum-scope 'global
   "Frames affected by a number set."
   :group 'winum
@@ -67,14 +62,16 @@ Has effect only when `winum-scope' is not 'frame-local."
   :type  'boolean)
 
 (defcustom winum-auto-assign-0-to-minibuffer t
-  "If non-nil, `winum-mode' assigns 0 to the minibuffer if active."
+  "If non-nil, `winum-mode' assigns 0 to the minibuffer when active."
   :group 'winum
   :type  'boolean)
 
 (defcustom winum-assign-func nil
   "Function called for each window by `winum-mode'.
 This is called before automatic assignment begins.  The function should
-return a number to have it assigned to the current-window, nil otherwise."
+return a number to have it assigned to the current-window, nil otherwise.
+This function along with `winum-auto-assign-0-to-minibuffer' are the only
+ways to have 0 assigned to a window."
   :group 'winum
   :type  'function)
 
@@ -229,8 +226,7 @@ There are several ways to provide the number:
 (defun winum-get-window-by-number (n)
   "Return window numbered N if exists."
   (let ((windows (if (eq winum-scope 'frame-local)
-                     (car (gethash (selected-frame)
-                                   winum--frames-table))
+                     (car (gethash (selected-frame) winum--frames-table))
                    winum--window-vector))
         window)
     (if (and (>= n 0) (< n (1+ winum--window-count))
@@ -255,11 +251,10 @@ WINDOW: if specified, the window of which we want to know the number.
         returned."
   (let ((w (or window (selected-window))))
     (if (eq winum-scope 'frame-local)
-        (gethash w (cdr (gethash (selected-frame)
-                                 winum--frames-table)))
+        (gethash w (cdr (gethash (selected-frame) winum--frames-table)))
       (gethash w winum--numbers-table))))
 
-;; Internal variables
+;; Implementation
 
 (defvar winum--max-frames 16
   "Maximum number of frames that can be numbered.")
@@ -424,8 +419,7 @@ Returns the assigned number, or nil on error."
 This vector is not stored the same way depending on the value of
 `winum-scope'."
   (if (eq winum-scope 'frame-local)
-      (car (gethash (selected-frame)
-                    winum--frames-table))
+      (car (gethash (selected-frame) winum--frames-table))
     winum--window-vector))
 
 (defun winum--get-numbers-table ()
@@ -433,8 +427,7 @@ This vector is not stored the same way depending on the value of
 This hashtable is not stored the same way depending on the value of
 `winum-scope'"
   (if (eq winum-scope 'frame-local)
-      (cdr (gethash (selected-frame)
-                    winum--frames-table))
+      (cdr (gethash (selected-frame) winum--frames-table))
     winum--numbers-table))
 
 (defun winum--available-numbers ()
