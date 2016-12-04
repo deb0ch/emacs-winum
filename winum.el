@@ -134,19 +134,21 @@ return a number to have it assigned to the current-window, nil otherwise."
 ;; TODO figure out a way of deleting window 0
 ;;      -> maybe the negative argument alone could delete window 0 instead of
 ;;         the current window ?
+
+;; TODO test negative argument should delete window 0
 (defun select-window-by-number (&optional arg)
   "Select or delete window iwhich number is specified by ARG.
 If the number is negative, delete the window instead of selecting it.
 There are several ways to provide the number:
 - if called from elisp with an argument, use it.
 - if called interactively with a numeric prefix argument, use it.
-- if prefix argument is the negative argument, delete the window.
+- if prefix argument is the negative argument, delete window 0.
 - if called interactively and no valid argument is provided, read from
   minibuffer."
   (interactive "P")
   (let* ((n (cond
              ((integerp arg) arg)
-             ((eq arg '-) (- (winum-get-number))) ; negative-argument
+             ((eq arg '-) 0) ; negative-argument
              (arg (winum-get-number))
              ((called-interactively-p 'any)
               (let ((user-input-str (read-from-minibuffer "Window: ")))
@@ -155,7 +157,7 @@ There are several ways to provide the number:
                   (string-to-number user-input-str))))
              (t (winum-get-number))))
          (w (winum-get-window-by-number (abs n)))
-         (delete (> 0 n)))
+         (delete (or (eq arg '-) (> 0 n))))
     (if delete
         (delete-window w)
       (winum--switch-to-window w))))
