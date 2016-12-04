@@ -78,6 +78,11 @@ return a number to have it assigned to the current-window, nil otherwise."
   :group 'winum
   :type  'function)
 
+(defcustom winum-auto-setup-mode-line t
+  "When nil, `winum-mode' will not display window numbers in the mode-line.
+You might want this to be nil if you use a package that already manages window
+numbers in the mode-line.")
+
 (defcustom winum-mode-line-position 1
   "The position in the mode-line `winum-mode' displays the number."
   :group 'winum
@@ -295,7 +300,8 @@ Such a structure allows for per-frame bidirectional fast access.")
   (if (eq winum-scope 'frame-local)
       (setq winum--frames-table (make-hash-table :size winum--max-frames))
     (setq winum--numbers-table (make-hash-table :size winum--window-count)))
-  (winum--install-mode-line)
+  (when winum-auto-setup-mode-line
+    (winum--install-mode-line))
   (add-hook 'minibuffer-setup-hook 'winum--update)
   (add-hook 'window-configuration-change-hook 'winum--update)
   (dolist (frame (frame-list))
@@ -304,7 +310,8 @@ Such a structure allows for per-frame bidirectional fast access.")
 
 (defun winum--deinit ()
   "Actions performed when turning off winum-mode."
-  (winum--clear-mode-line)
+  (when winum-auto-setup-mode-line
+    (winum--clear-mode-line))
   (remove-hook 'minibuffer-setup-hook 'winum--update)
   (remove-hook 'window-configuration-change-hook 'winum--update)
   (setq winum--frames-table nil))

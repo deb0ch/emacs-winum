@@ -117,6 +117,14 @@ Example: always assign the calculator window the number 9:
 	  (lambda () (when (equal (buffer-name) "*Calculator*") 9)))
 #+END_SRC
 
+- =winum-auto-setup-mode-line=
+
+When nil, `winum-mode' will not display window numbers in the mode-line.
+You might want this to be nil if you use a package that already manages window
+numbers in the mode-line.
+
+Default: t
+
 - =winum-mode-line-position=
 
 The position in the mode-line `winum-mode' displays the number.
