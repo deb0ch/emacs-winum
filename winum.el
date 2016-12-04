@@ -37,7 +37,6 @@
 
 (eval-when-compile (require 'cl))
 
-;; TODO set more than 10 windows
 ;; TODO 0 should only be assigned manually
 ;;          -> what to do to not waste the 0 key then ?
 ;;          -> assign "\M-0" to `select-window-10' in the keymap
@@ -81,11 +80,6 @@ return a number to have it assigned to the current-window, nil otherwise."
 
 (defcustom winum-mode-line-position 1
   "The position in the mode-line `winum-mode' displays the number."
-  :group 'winum
-  :type  'integer)
-
-(defcustom winum-window-number-max 10
-  "Max number of windows that can be numbered."
   :group 'winum
   :type  'integer)
 
@@ -235,7 +229,7 @@ There are several ways to provide the number:
                                    winum--frames-table))
                    winum--window-vector))
         window)
-    (if (and (>= n 0) (< n winum-window-number-max)
+    (if (and (>= n 0) (< n (1+ winum--window-count))
              (setq window (aref windows n)))
         window
       (error "No window numbered %s" n))))
@@ -266,6 +260,12 @@ WINDOW: if specified, the window of which we want to know the number.
 (defvar winum--max-frames 16
   "Maximum number of frames that can be numbered.")
 
+(defvar winum--window-count nil
+  "Current count of windows to be numbered.")
+
+(defvar winum--remaining nil
+  "A list of window numbers to assign.")
+
 (defvar winum--window-vector nil
   "Vector of windows indexed by their number.
 Used internally by winum to get a window provided a number.")
@@ -289,14 +289,12 @@ To get a number given a window, use the `cdr' of a value.
 
 Such a structure allows for per-frame bidirectional fast access.")
 
-(defvar winum--remaining nil
-  "A list of available window numbers.")
-
 (defun winum--init ()
   "Initialize winum-mode."
+  (setq winum--window-count (length (winum--window-list)))
   (if (eq winum-scope 'frame-local)
       (setq winum--frames-table (make-hash-table :size winum--max-frames))
-    (setq winum--numbers-table (make-hash-table :size winum-window-number-max)))
+    (setq winum--numbers-table (make-hash-table :size winum--window-count)))
   (winum--install-mode-line)
   (add-hook 'minibuffer-setup-hook 'winum--update)
   (add-hook 'window-configuration-change-hook 'winum--update)
@@ -341,18 +339,19 @@ POSITION: position in the mode-line."
 
 (defun winum--update ()
   "Update window numbers."
-  (setq winum--remaining (winum--available-numbers))
-  (if (eq winum-scope 'frame-local)
-      (puthash (selected-frame)
-               (cons (make-vector winum-window-number-max nil)
-                     (make-hash-table :size winum-window-number-max))
-               winum--frames-table)
-    (setq winum--window-vector (make-vector winum-window-number-max nil))
-    (clrhash winum--numbers-table))
-  (when (and winum-auto-assign-0-to-minibuffer
-             (active-minibuffer-window))
-    (winum--assign (active-minibuffer-window) 0))
   (let ((windows (winum--window-list)))
+    (setq winum--window-count (length windows)
+          winum--remaining (winum--available-numbers))
+    (if (eq winum-scope 'frame-local)
+        (puthash (selected-frame)
+                 (cons (make-vector (1+ winum--window-count) nil)
+                       (make-hash-table :size winum--window-count))
+                 winum--frames-table)
+      (setq winum--window-vector (make-vector (1+ winum--window-count) nil))
+      (clrhash winum--numbers-table))
+    (when (and winum-auto-assign-0-to-minibuffer
+               (active-minibuffer-window))
+      (winum--assign (active-minibuffer-window) 0))
     (when winum-assign-func
       (mapc (lambda (w)
               (with-selected-window w
@@ -431,13 +430,13 @@ This hashtable is not stored the same way depending on the value of
                     winum--frames-table))
     winum--numbers-table))
 
-;; TODO make maximum window number dynamic
 (defun winum--available-numbers ()
-  "Return a list of numbers from 1 to `winum-window-number-max'.
-0 is the last element of the list."
+  "Return a list of numbers from 1 to `winum--window-count'.
+0 is is not part of the list as its assignment is either manual
+using the `winum-assign-func', or using `winum-auto-assign-0-to-minibuffer'."
   (let ((numbers))
-    (dotimes (i winum-window-number-max)
-      (push (% (1+ i) winum-window-number-max) numbers))
+    (dotimes (i winum--window-count)
+      (push (1+ i) numbers))
     (nreverse numbers)))
 
 (defun winum--switch-to-window (window)
