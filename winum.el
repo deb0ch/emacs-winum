@@ -122,18 +122,69 @@ return a number to have it assigned to the current-window, nil otherwise."
       (winum--init)
     (winum--deinit)))
 
-;; define interactive functions winum-select-window-[0..n]
-(dotimes (i winum-window-number-max)
-  (eval `(defun ,(intern (format "select-window-%s" i)) (&optional arg)
-           ,(format "Jump to window %d.\nIf prefix ARG is given, delete the\
- window instead of selecting it." i)
-           (interactive "P")
-           (let ((n (if arg (- ,i) ,i)))
-             (select-window-by-number n)))))
+;; TODO test select-window-0-or-10
+(defun select-window-0-or-10 (&optional arg)
+  "Jump to window 0 if assigned or 10 if exists.
+If prefix ARG is given, delete the window instead of selecting it."
+  (interactive "P")
+  (let ((n (if (winum-get-number 0)
+               (if arg '- 0)
+             (if arg -10 10))))
+    (select-window-by-number n)))
 
-;; TODO figure out a way of deleting window 0
-;;      -> maybe the negative argument alone could delete window 0 instead of
-;;         the current window ?
+(defun select-window-1 (&optional arg)
+  "Jump to window 1.
+If prefix ARG is given, delete the window instead of selecting it."
+  (interactive "P")
+  (select-window-by-number (if arg -1 1)))
+
+(defun select-window-2 (&optional arg)
+  "Jump to window 2.
+If prefix ARG is given, delete the window instead of selecting it."
+  (interactive "P")
+  (select-window-by-number (if arg -2 2)))
+
+(defun select-window-3 (&optional arg)
+  "Jump to window 3.
+If prefix ARG is given, delete the window instead of selecting it."
+  (interactive "P")
+  (select-window-by-number (if arg -3 3)))
+
+(defun select-window-4 (&optional arg)
+  "Jump to window 4.
+If prefix ARG is given, delete the window instead of selecting it."
+  (interactive "P")
+  (select-window-by-number (if arg -4 4)))
+
+(defun select-window-5 (&optional arg)
+  "Jump to window 5.
+If prefix ARG is given, delete the window instead of selecting it."
+  (interactive "P")
+  (select-window-by-number (if arg -5 5)))
+
+(defun select-window-6 (&optional arg)
+  "Jump to window 6.
+If prefix ARG is given, delete the window instead of selecting it."
+  (interactive "P")
+  (select-window-by-number (if arg -6 6)))
+
+(defun select-window-7 (&optional arg)
+  "Jump to window 7.
+If prefix ARG is given, delete the window instead of selecting it."
+  (interactive "P")
+  (select-window-by-number (if arg -7 7)))
+
+(defun select-window-8 (&optional arg)
+  "Jump to window 8.
+If prefix ARG is given, delete the window instead of selecting it."
+  (interactive "P")
+  (select-window-by-number (if arg -8 8)))
+
+(defun select-window-9 (&optional arg)
+  "Jump to window 9.
+If prefix ARG is given, delete the window instead of selecting it."
+  (interactive "P")
+  (select-window-by-number (if arg -9 9)))
 
 ;; TODO test negative argument should delete window 0
 (defun select-window-by-number (&optional arg)

@@ -26,6 +26,7 @@
 
 (require 'winum)
 
+(defalias 'select-window-0 'select-window-0-or-10)
 (defalias 'window-numbering-get-number-string 'winum-get-number-string)
 (defalias 'window-numbering-get-window-by-number 'winum-get-window-by-number)
 (defalias 'window-numbering-get-number 'winum-get-number)
