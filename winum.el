@@ -208,6 +208,7 @@ There are several ways to provide the number:
 - if called from elisp with an argument, use it.
 - if called interactively with a numeric prefix argument, use it.
 - if prefix argument is the negative argument, delete window 0.
+- if prefix argument is the default prefix argument, delete current window.
 - if called interactively and no valid argument is provided, read from
   minibuffer."
   (interactive "P")
@@ -222,7 +223,9 @@ There are several ways to provide the number:
                   (string-to-number user-input-str))))
              (t (winum-get-number))))
          (w (winum-get-window-by-number (abs n)))
-         (delete (or (eq arg '-) (> 0 n))))
+         (delete (and arg
+                      (or (not (integerp arg))
+                          (> 0 n)))))
     (if w
         (if delete
             (delete-window w)
