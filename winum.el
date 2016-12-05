@@ -141,6 +141,12 @@ If prefix ARG is given, delete the window instead of selecting it."
              (if arg -10 10))))
     (select-window-by-number n)))
 
+(defun select-window-0 (&optional arg)
+  "Jump to window 0.
+If prefix ARG is given, delete the window instead of selecting it."
+  (interactive "P")
+  (select-window-by-number (if arg '- 0)))
+
 (defun select-window-1 (&optional arg)
   "Jump to window 1.
 If prefix ARG is given, delete the window instead of selecting it."
