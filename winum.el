@@ -195,9 +195,8 @@ If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (select-window-by-number (if arg -9 9)))
 
-;; TODO test negative argument should delete window 0
 (defun select-window-by-number (&optional arg)
-  "Select or delete window iwhich number is specified by ARG.
+  "Select or delete window which number is specified by ARG.
 If the number is negative, delete the window instead of selecting it.
 There are several ways to provide the number:
 - if called from elisp with an argument, use it.
@@ -218,13 +217,15 @@ There are several ways to provide the number:
              (t (winum-get-number))))
          (w (winum-get-window-by-number (abs n)))
          (delete (or (eq arg '-) (> 0 n))))
-    (if delete
-        (delete-window w)
-      (winum--switch-to-window w))))
+    (if w
+        (if delete
+            (delete-window w)
+          (winum--switch-to-window w))
+      (error "No window numbered %d" n))))
 
 ;;;###autoload
 (defun winum-get-window-by-number (n)
-  "Return window numbered N if exists."
+  "Return window numbered N if exists, nil otherwise."
   (let ((windows (if (eq winum-scope 'frame-local)
                      (car (gethash (selected-frame) winum--frames-table))
                    winum--window-vector))
@@ -449,6 +450,7 @@ using the `winum-assign-func', or using `winum-auto-assign-0-to-minibuffer'."
         (select-window window)
       (error "Got a dead window %S" window))))
 
+(push "^No window numbered .$"     debug-ignored-errors)
 (push "^Got a dead window .$"      debug-ignored-errors)
 (push "^Invalid `winum-scope': .$" debug-ignored-errors)
 
