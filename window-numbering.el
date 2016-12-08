@@ -63,8 +63,7 @@
 (defcustom window-numbering-auto-assign-0-to-minibuffer t
   "If non-nil, `window-numbering-mode' assigns 0 to the minibuffer if active."
   :group 'window-numbering
-  :type '(choice (const :tag "Off" nil)
-                 (const :tag "On" t)))
+  :type 'boolean)
 
 (defcustom window-numbering-before-hook nil
   "Hook called before `window-numbering-mode' starts assigning numbers.
@@ -82,8 +81,10 @@ return a number to have it assigned to the current-window, nil otherwise."
   :group 'window-numbering
   :type 'function)
 
-(defconst window-numbering-mode-line-position 1
-  "The position in the mode-line `window-numbering-mode' displays the number.")
+(defcustom window-numbering-mode-line-position 1
+  "The position in the mode-line `window-numbering-mode' displays the number."
+  :group 'window-numbering
+  :type 'integer)
 
 ;; TODO when changed from frame-local to non-local in customize, need to force
 ;;      update, or `window-numbering-get-number' fails and crashes the modeline
@@ -102,8 +103,7 @@ Has effect only when `window-numbering-frame-scope' is not 'frame-local."
   :group 'window-numbering
   :type 'boolean)
 
-(defface window-numbering-face
-  '()
+(defface window-numbering-face '()
   "Face used for the number in the mode-line."
   :group 'window-numbering)
 
