@@ -250,7 +250,7 @@ Returns the assigned number, or nil on error."
 POSITION: position in the mode-line."
   (let ((mode-line (default-value 'mode-line-format))
         (res))
-    (dotimes (i (min (or position window-numbering-mode-line-position)
+    (dotimes (i (min (or position window-numbering-mode-line-position 1)
                      (length mode-line)))
       (push (car mode-line) res)
       (pop mode-line))
