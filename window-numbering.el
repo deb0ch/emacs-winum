@@ -85,6 +85,20 @@ return a number to have it assigned to the current-window, nil otherwise."
 (defconst window-numbering-mode-line-position 1
   "The position in the mode-line `window-numbering-mode' displays the number.")
 
+(defcustom window-numbering-frame-scope 'global
+  "The scope of number sets."
+  :group 'window-numbering
+  :type '(choice
+          (const :tag "frame local" frame-local)
+          (const :tag "visible frames" visible)
+          (const :tag "global" global)))
+
+(defcustom window-numbering-reverse-frame-list nil
+  "If t, order frames by reverse order of creation.
+Has effect only when `window-numbering-frame-scope' is not 'frame-local."
+  :group 'window-numbering
+  :type 'boolean)
+
 (defface window-numbering-face
   '()
   "Face used for the number in the mode-line."
@@ -97,13 +111,16 @@ return a number to have it assigned to the current-window, nil otherwise."
   "Select window given number I by `window-numbering-mode'.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
-  (let ((windows (car (gethash (selected-frame) window-numbering-table)))
+  (let ((windows (if (eq window-numbering-frame-scope 'frame-local)
+                     (car (gethash (selected-frame)
+                                   window-numbering-table))
+                   window-numbering-windows))
         window)
     (if (and (>= i 0) (< i 10)
              (setq window (aref windows i)))
         (if arg
             (delete-window window)
-          (select-window window))
+          (window-numbering-switch-to-window window))
       (error "No window numbered %s" i))))
 
 ;; define interactive functions for keymap
@@ -138,29 +155,27 @@ If prefix ARG is given, delete the window instead of selecting it."
         (setf (aref window-numbering-windows number) window)
         (puthash window number window-numbering-numbers)
         (setq window-numbering-left (delq number window-numbering-left))
-        t)
-    ;; else default adding
+        number)
+    ;; else determine number and assign
     (when window-numbering-left
       (unless (gethash window window-numbering-numbers)
         (let ((number (car window-numbering-left)))
-          (window-numbering-assign window number)
-          number)))))
+          (window-numbering-assign window number))))))
 
 (defun window-numbering-update ()
-  "Update the window numbering for the current frame.
-Optional parameter PREASSIGNED-WINDOWS is a hashmap already mapping some
-windows to numbers."
+  "Update window numbers."
   (setq window-numbering-windows (make-vector 10 nil)
         window-numbering-numbers (make-hash-table :size 10)
-        window-numbering-left
-        (window-numbering-calculate-left window-numbering-windows))
-  (puthash (selected-frame)
-           (cons window-numbering-windows window-numbering-numbers)
-           window-numbering-table)
+        window-numbering-left (window-numbering-calculate-left
+                                window-numbering-windows))
+  (when (eq window-numbering-frame-scope 'frame-local)
+    (puthash (selected-frame)
+             (cons window-numbering-windows window-numbering-numbers)
+             window-numbering-table))
   (when (and window-numbering-auto-assign-0-to-minibuffer
              (active-minibuffer-window))
     (window-numbering-assign (active-minibuffer-window) 0))
-  (let ((windows (window-list nil 0 (frame-first-window))))
+  (let ((windows (window-numbering-window-list)))
     (run-hook-with-args 'window-numbering-before-hook windows)
     (when window-numbering-assign-func
       (mapc (lambda (window)
@@ -173,13 +188,57 @@ windows to numbers."
     (dolist (window windows)
       (window-numbering-assign window))))
 
+(defun window-numbering-list-windows-in-frame (&optional f)
+  "List windows in frame F using natural Emacs ordering."
+  (window-list f 0 (frame-first-window f)))
+
+(defun window-numbering-window-list ()
+  "Return a list of interesting windows."
+  (cl-remove-if
+   (lambda (w)
+     (let ((f (window-frame w)))
+       (or (not (and (frame-live-p f)
+                     (frame-visible-p f)))
+           (string= "initial_terminal" (terminal-name f))
+           ;; (window-numbering-ignored-p w) ;; TODO implement
+           )))
+   (cl-case window-numbering-frame-scope
+     (global
+      (cl-mapcan 'window-numbering-list-windows-in-frame
+                 (if window-numbering-reverse-frame-list
+                     (frame-list)
+                   (nreverse (frame-list)))))
+     (visible
+      (cl-mapcan 'window-numbering-list-windows-in-frame
+                 (if window-numbering-reverse-frame-list
+                     (visible-frame-list)
+                   (nreverse (visible-frame-list)))))
+     (frame-local
+      (window-numbering-list-windows-in-frame))
+     (t
+      (error "Invalid `window-numbering-frame-scope': %S"
+             window-numbering-frame-scope)))))
+
+(defun window-numbering-switch-to-window (window)
+  "Switch to the window WINDOW and switch input focus if on a different frame."
+  (let ((frame (window-frame window)))
+    (when (and (frame-live-p frame)
+               (not (eq frame (selected-frame))))
+      (select-frame-set-input-focus frame))
+    (if (window-live-p window)
+        (select-window window)
+      (error "Got a dead window %S" window))))
+
 (defun window-numbering-get-number-string (&optional window)
   (let ((s (int-to-string (window-numbering-get-number window))))
     (propertize s 'face 'window-numbering-face)))
 
 (defun window-numbering-get-number (&optional window)
-  (gethash (or window (selected-window))
-           (cdr (gethash (selected-frame) window-numbering-table))))
+  (let ((w (or window (selected-window))))
+    (if (eq window-numbering-frame-scope 'frame-local)
+        (gethash w (cdr (gethash (selected-frame)
+                                 window-numbering-table)))
+      (gethash w window-numbering-numbers))))
 
 (defvar window-numbering-keymap
   (let ((map (make-sparse-keymap)))
