@@ -104,7 +104,7 @@ Has effect only when `window-numbering-frame-scope' is not 'frame-local."
   "Face used for the number in the mode-line."
   :group 'window-numbering)
 
-(defvar window-numbering-table nil
+(defvar window-numbering--frames-table nil
   "table -> (window vector . number table)")
 
 (defun select-window-by-number (i &optional arg)
@@ -113,8 +113,8 @@ If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (let ((windows (if (eq window-numbering-frame-scope 'frame-local)
                      (car (gethash (selected-frame)
-                                   window-numbering-table))
-                   window-numbering-windows))
+                                   window-numbering--frames-table))
+                   window-numbering--windows))
         window)
     (if (and (>= i 0) (< i 10)
              (setq window (aref windows i)))
@@ -139,39 +139,41 @@ If prefix ARG is given, delete the window instead of selecting it."
       (decf i))
     left))
 
-(defvar window-numbering-windows nil
+(defvar window-numbering--windows nil
   "A vector listing the window for each number.")
-(defvar window-numbering-numbers
+
+(defvar window-numbering--numbers nil
   "A hash map containing each window's number.")
-(defvar window-numbering-left
+
+(defvar window-numbering--left nil
   "A list of unused window numbers.")
 
 (defun window-numbering-assign (window &optional number)
   (if number
-      (if (aref window-numbering-windows number)
+      (if (aref window-numbering--windows number)
           (progn (message "Number %s assigned to two buffers (%s and %s)"
-                          number window (aref window-numbering-windows number))
+                          number window (aref window-numbering--windows number))
                  nil)
-        (setf (aref window-numbering-windows number) window)
-        (puthash window number window-numbering-numbers)
-        (setq window-numbering-left (delq number window-numbering-left))
+        (setf (aref window-numbering--windows number) window)
+        (puthash window number window-numbering--numbers)
+        (setq window-numbering--left (delq number window-numbering--left))
         number)
     ;; else determine number and assign
-    (when window-numbering-left
-      (unless (gethash window window-numbering-numbers)
-        (let ((number (car window-numbering-left)))
+    (when window-numbering--left
+      (unless (gethash window window-numbering--numbers)
+        (let ((number (car window-numbering--left)))
           (window-numbering-assign window number))))))
 
 (defun window-numbering-update ()
   "Update window numbers."
-  (setq window-numbering-windows (make-vector 10 nil)
-        window-numbering-numbers (make-hash-table :size 10)
-        window-numbering-left (window-numbering-calculate-left
-                                window-numbering-windows))
+  (setq window-numbering--windows (make-vector 10 nil)
+        window-numbering--numbers (make-hash-table :size 10)
+        window-numbering--left (window-numbering-calculate-left
+                                window-numbering--windows))
   (when (eq window-numbering-frame-scope 'frame-local)
     (puthash (selected-frame)
-             (cons window-numbering-windows window-numbering-numbers)
-             window-numbering-table))
+             (cons window-numbering--windows window-numbering--numbers)
+             window-numbering--frames-table))
   (when (and window-numbering-auto-assign-0-to-minibuffer
              (active-minibuffer-window))
     (window-numbering-assign (active-minibuffer-window) 0))
@@ -237,8 +239,8 @@ If prefix ARG is given, delete the window instead of selecting it."
   (let ((w (or window (selected-window))))
     (if (eq window-numbering-frame-scope 'frame-local)
         (gethash w (cdr (gethash (selected-frame)
-                                 window-numbering-table)))
-      (gethash w window-numbering-numbers))))
+                                 window-numbering--frames-table)))
+      (gethash w window-numbering--numbers))))
 
 (defvar window-numbering-keymap
   (let ((map (make-sparse-keymap)))
@@ -260,9 +262,9 @@ If prefix ARG is given, delete the window instead of selecting it."
   "A minor mode that assigns a number to each window."
   nil nil window-numbering-keymap :global t
   (if window-numbering-mode
-      (unless window-numbering-table
+      (unless window-numbering--frames-table
         (save-excursion
-          (setq window-numbering-table (make-hash-table :size 16))
+          (setq window-numbering--frames-table (make-hash-table :size 16))
           (window-numbering-install-mode-line)
           (add-hook 'minibuffer-setup-hook 'window-numbering-update)
           (add-hook 'window-configuration-change-hook
@@ -274,7 +276,7 @@ If prefix ARG is given, delete the window instead of selecting it."
     (remove-hook 'minibuffer-setup-hook 'window-numbering-update)
     (remove-hook 'window-configuration-change-hook
                  'window-numbering-update)
-    (setq window-numbering-table nil)))
+    (setq window-numbering--frames-table nil)))
 
 (defun window-numbering-install-mode-line (&optional position)
   "Install the window number from `window-numbering-mode' to the mode-line."
