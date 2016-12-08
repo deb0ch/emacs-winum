@@ -1,19 +1,12 @@
-;;; window-numbering.el --- Numbered window shortcuts
+;;; winum.el --- Window numbers
 ;;
-;; Copyright (C) 2006-2007, 2013, 2015 Nikolaj Schumacher <bugs * nschum , de>
+;; Copyright (c) 2006-2015 Nikolaj Schumacher
+;; Copyright (c) 2016 Thomas Chauvot de Beauchêne
 ;;
-;; Author: Nikolaj Schumacher <bugs * nschum de>
-;; Version: 1.1.2
-;; Keywords: faces, matching
-;; URL: http://nschum.de/src/emacs/window-numbering-mode/
-;; Compatibility: GNU Emacs 22.x, GNU Emacs 23.x, GNU Emacs 24.x
-;;
-;; This file is NOT part of GNU Emacs.
-;;
-;; This program is free software; you can redistribute it and/or
-;; modify it under the terms of the GNU General Public License
-;; as published by the Free Software Foundation; either version 2
-;; of the License, or (at your option) any later version.
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
 ;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,32 +16,22 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;;
+;; Author: Thomas de Beauchêne <thomas.de.beauchene@gmail.com>
+;; Version: 1.0
+;; Keywords: windows, window management, numbers
+;; URL: http://github.com/deb0ch/winum.el
+;; Created: 2016
+;; Compatibility: GNU Emacs 24.x
+;;
+;; This file is NOT part of GNU Emacs.
+;;
 ;;; Commentary:
 ;;
-;; Enable window-numbering-mode and use M-1 through M-0 to navigate.
+;; This project is an extended and actively maintained version of
+;; window-numbering.el
 ;;
-;; If you want to affect the numbers, use window-numbering-before-hook or
-;; window-numbering-assign-func.
-;; For instance, to always assign the calculator window the number 9, add the
-;; following to your .emacs:
-;;
-;; (setq window-numbering-assign-func
-;;       (lambda () (when (equal (buffer-name) "*Calculator*") 9)))
-;;
-;;; Changes Log:
-;;
-;;    Fix numbering of minibuffer for recent Emacs versions.
-;;
-;; 2013-03-23 (1.1.2)
-;;    Fix numbering in terminal mode with menu bar visible.
-;;    Add face for window number.  (thanks to Chen Bin)
-;;
-;; 2008-04-11 (1.1.1)
-;;    Added possibility to delete window with prefix arg.
-;;    Cleaned up code and migrated to `defcustom'.
-;;
-;; 2007-02-18 (1.1)
-;;    Added window-numbering-before-hook, window-numbering-assign-func.
+;; Bla bla bla disclaimer, links & credits to original project, ace-window
+;; etc...
 ;;
 ;;; Code:
 
