@@ -57,18 +57,18 @@
 (push "^No window numbered .$" debug-ignored-errors)
 
 (defgroup window-numbering nil
-  "Numbered window shortcuts"
+  "Navigate and manage windows using numbers."
   :group 'convenience)
 
 (defcustom window-numbering-auto-assign-0-to-minibuffer t
-  "*If non-nil, `window-numbering-mode' assigns 0 to the minibuffer if active."
+  "If non-nil, `window-numbering-mode' assigns 0 to the minibuffer if active."
   :group 'window-numbering
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On" t)))
 
 (defcustom window-numbering-before-hook nil
-  "*Hook called before `window-numbering-mode' starts assigning numbers.
-The number of windows that will be numbered is passed as a parameter.
+  "Hook called before `window-numbering-mode' starts assigning numbers.
+The list of windows to be numbered is passed as a parameter.
 Use `window-numbering-assign' to manually assign some of them a number.
 If you want to assign a number to just one buffer, use
 `window-numbering-assign-func' instead."
@@ -76,7 +76,7 @@ If you want to assign a number to just one buffer, use
   :type 'hook)
 
 (defcustom window-numbering-assign-func nil
-  "*Function called for each window by `window-numbering-mode'.
+  "Function called for each window by `window-numbering-mode'.
 This is called before automatic assignment begins.  The function should
 return a number to have it assigned to the current-window, nil otherwise."
   :group 'window-numbering
@@ -105,7 +105,18 @@ Has effect only when `window-numbering-frame-scope' is not 'frame-local."
   :group 'window-numbering)
 
 (defvar window-numbering--frames-table nil
-  "table -> (window vector . number table)")
+  "Bidirectional table between windows and window numbers.
+
+Used when `window-numbering-frame-scope' is 'frame-local to keep
+track of separate window numbers sets in every frame.
+
+It is a hash table using emacs frames as keys and cons of the form
+\(`window-numbering--windows' . `window-numbering--numbers') as values.
+
+To get a window given a number, use the `car' of a value.
+To get a number given a window, use the `cdr' of a value.
+
+Such a structure allows for per-frame bidirectional fast access.")
 
 ;;;###autoload
 (defun get-window-by-number (i)
@@ -138,7 +149,10 @@ If prefix ARG is given, delete the window instead of selecting it."
            (select-window-by-number ,i arg))))
 
 (defun window-numbering-calculate-left (windows)
-  (let ((i 9) left)
+  "Return a list of numbers currently available for assignment.
+WINDOWS: a vector of currently assigned windows."
+  (let ((i 9)
+        left)
     (while (>= i 0)
       (let ((window (aref windows i)))
         (unless window
@@ -147,15 +161,21 @@ If prefix ARG is given, delete the window instead of selecting it."
     left))
 
 (defvar window-numbering--windows nil
-  "A vector listing the window for each number.")
+  "Vector of windows indexed by their number.
+Used internally by window-numbering to get a window provided a number.")
 
 (defvar window-numbering--numbers nil
-  "A hash map containing each window's number.")
+  "Hash table of numbers indexed by their window.
+Used internally by window-numbering to get a number provided a window.")
 
 (defvar window-numbering--left nil
   "A list of unused window numbers.")
 
 (defun window-numbering-assign (window &optional number)
+  "Assign to window WINDOW the number NUMBER.
+If NUMBER is not specified, determine it first based on
+`window-numbering--left'.
+Returns the assigned number, or nil on error."
   (if number
       (if (aref window-numbering--windows number)
           (progn (message "Number %s assigned to two buffers (%s and %s)"
@@ -240,11 +260,19 @@ If prefix ARG is given, delete the window instead of selecting it."
 
 ;;;###autoload
 (defun window-numbering-get-number-string (&optional window)
+  "Get the current or specified window's current number as a propertized string.
+WINDOW: if specified, the window of which we want to know the number.
+        If not specified, the number of the currently selected window is
+        returned."
   (let ((s (int-to-string (window-numbering-get-number window))))
     (propertize s 'face 'window-numbering-face)))
 
 ;;;###autoload
 (defun window-numbering-get-number (&optional window)
+  "Get the current or specified window's current number.
+WINDOW: if specified, the window of which we want to know the number.
+        If not specified, the number of the currently selected window is
+        returned."
   (let ((w (or window (selected-window))))
     (if (eq window-numbering-frame-scope 'frame-local)
         (gethash w (cdr (gethash (selected-frame)
@@ -268,8 +296,11 @@ If prefix ARG is given, delete the window instead of selecting it."
 
 ;;;###autoload
 (define-minor-mode window-numbering-mode
-  "A minor mode that assigns a number to each window."
-  nil nil window-numbering-keymap :global t
+  "A minor mode that allows for managing windows based on window numbers."
+  nil
+  nil
+  window-numbering-keymap
+  :global t
   (if window-numbering-mode
       (unless window-numbering--frames-table
         (save-excursion
@@ -289,7 +320,8 @@ If prefix ARG is given, delete the window instead of selecting it."
 
 ;;;###autoload
 (defun window-numbering-install-mode-line (&optional position)
-  "Install the window number from `window-numbering-mode' to the mode-line."
+  "Install the window number from `window-numbering-mode' to the mode-line.
+POSITION: position in the mode-line."
   (let ((mode-line (default-value 'mode-line-format))
         (res))
     (dotimes (i (min (or position window-numbering-mode-line-position)
