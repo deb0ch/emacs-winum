@@ -107,10 +107,8 @@ Has effect only when `window-numbering-frame-scope' is not 'frame-local."
 (defvar window-numbering--frames-table nil
   "table -> (window vector . number table)")
 
-(defun select-window-by-number (i &optional arg)
-  "Select window given number I by `window-numbering-mode'.
-If prefix ARG is given, delete the window instead of selecting it."
-  (interactive "P")
+(defun get-window-by-number (i)
+  "Return window numbered I if exists."
   (let ((windows (if (eq window-numbering-frame-scope 'frame-local)
                      (car (gethash (selected-frame)
                                    window-numbering--frames-table))
@@ -118,10 +116,17 @@ If prefix ARG is given, delete the window instead of selecting it."
         window)
     (if (and (>= i 0) (< i 10)
              (setq window (aref windows i)))
-        (if arg
-            (delete-window window)
-          (window-numbering-switch-to-window window))
+        window
       (error "No window numbered %s" i))))
+
+(defun select-window-by-number (i &optional arg)
+  "Select window given number I by `window-numbering-mode'.
+If prefix ARG is given, delete the window instead of selecting it."
+  (interactive "P")
+  (let ((w (get-window-by-number i)))
+    (if arg
+        (delete-window w)
+      (window-numbering-switch-to-window w))))
 
 ;; define interactive functions for keymap
 (dotimes (i 10)
