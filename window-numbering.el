@@ -107,6 +107,7 @@ Has effect only when `window-numbering-frame-scope' is not 'frame-local."
 (defvar window-numbering--frames-table nil
   "table -> (window vector . number table)")
 
+;;;###autoload
 (defun get-window-by-number (i)
   "Return window numbered I if exists."
   (let ((windows (if (eq window-numbering-frame-scope 'frame-local)
@@ -119,6 +120,7 @@ Has effect only when `window-numbering-frame-scope' is not 'frame-local."
         window
       (error "No window numbered %s" i))))
 
+;;;###autoload
 (defun select-window-by-number (i &optional arg)
   "Select window given number I by `window-numbering-mode'.
 If prefix ARG is given, delete the window instead of selecting it."
@@ -236,10 +238,12 @@ If prefix ARG is given, delete the window instead of selecting it."
         (select-window window)
       (error "Got a dead window %S" window))))
 
+;;;###autoload
 (defun window-numbering-get-number-string (&optional window)
   (let ((s (int-to-string (window-numbering-get-number window))))
     (propertize s 'face 'window-numbering-face)))
 
+;;;###autoload
 (defun window-numbering-get-number (&optional window)
   (let ((w (or window (selected-window))))
     (if (eq window-numbering-frame-scope 'frame-local)
@@ -283,6 +287,7 @@ If prefix ARG is given, delete the window instead of selecting it."
                  'window-numbering-update)
     (setq window-numbering--frames-table nil)))
 
+;;;###autoload
 (defun window-numbering-install-mode-line (&optional position)
   "Install the window number from `window-numbering-mode' to the mode-line."
   (let ((mode-line (default-value 'mode-line-format))
@@ -298,6 +303,7 @@ If prefix ARG is given, delete the window instead of selecting it."
     (setq-default mode-line-format (nreverse res)))
   (force-mode-line-update t))
 
+;;;###autoload
 (defun window-numbering-clear-mode-line ()
   "Remove the window number of `window-numbering-mode' from the mode-line."
   (let ((mode-line (default-value 'mode-line-format))
