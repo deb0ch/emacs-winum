@@ -85,6 +85,9 @@ return a number to have it assigned to the current-window, nil otherwise."
 (defconst window-numbering-mode-line-position 1
   "The position in the mode-line `window-numbering-mode' displays the number.")
 
+;; TODO when changed from frame-local to non-local in customize, need to force
+;;      update, or `window-numbering-get-number' fails and crashes the modeline
+;;      until next update.
 (defcustom window-numbering-frame-scope 'global
   "The scope of number sets."
   :group 'window-numbering
@@ -141,7 +144,7 @@ If prefix ARG is given, delete the window instead of selecting it."
         (delete-window w)
       (window-numbering-switch-to-window w))))
 
-;; define interactive functions for keymap
+;; (defun window-numbering-select-window-[0-9] ())
 (dotimes (i 10)
   (eval `(defun ,(intern (format "select-window-%s" i)) (&optional arg)
            ,(format "Select the window with number %i." i)
@@ -191,6 +194,7 @@ Returns the assigned number, or nil on error."
         (let ((number (car window-numbering--left)))
           (window-numbering-assign window number))))))
 
+;; TODO update mode-line in all frames
 (defun window-numbering-update ()
   "Update window numbers."
   (setq window-numbering--windows (make-vector 10 nil)
@@ -347,6 +351,10 @@ POSITION: position in the mode-line."
       (pop mode-line))
     (setq-default mode-line-format (nreverse res)))
   (force-mode-line-update t))
+
+;; TODO select window of unlimited input number:
+;;      - prefix argument
+;;      - read-from-minibuffer
 
 (provide 'window-numbering)
 
