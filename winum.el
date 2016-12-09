@@ -327,12 +327,10 @@ POSITION: position in the mode-line."
         (res))
     (dotimes (i (min (or position winum-mode-line-position 1)
                      (length mode-line)))
-      (push (car mode-line) res)
-      (pop mode-line))
+      (push (pop mode-line) res))
     (push '(:eval (winum-get-number-string)) res)
     (while mode-line
-      (push (car mode-line) res)
-      (pop mode-line))
+      (push (pop mode-line) res))
     (setq-default mode-line-format (nreverse res)))
   (force-mode-line-update t))
 
