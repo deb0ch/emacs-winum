@@ -1,4 +1,4 @@
-;;; winum.el --- Window numbers for Emacs. An extended version of window-numbering.el, ideal for multi-screen.
+;;; winum.el --- Window numbers: navigate windows and frames using numbers.
 ;;
 ;; Copyright (c) 2006-2015 Nikolaj Schumacher
 ;; Copyright (c) 2016 Thomas Chauvot de Beauchêne
