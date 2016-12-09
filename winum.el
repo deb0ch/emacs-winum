@@ -18,7 +18,7 @@
 ;;
 ;; Author: Thomas de Beauchêne <thomas.de.beauchene@gmail.com>
 ;; Version: 1.0
-;; Keywords: windows, window management, numbers
+;; Keywords: convenience, frames, windows, multi-screen
 ;; URL: http://github.com/deb0ch/winum.el
 ;; Created: 2016
 ;; Compatibility: GNU Emacs 24.x
