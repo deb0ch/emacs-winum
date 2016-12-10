@@ -96,17 +96,17 @@ numbers in the mode-line.")
 
 (defvar winum-keymap
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-`") 'select-window-by-number)
-    (define-key map (kbd "M-0") 'select-window-0-or-10)
-    (define-key map (kbd "M-1") 'select-window-1)
-    (define-key map (kbd "M-2") 'select-window-2)
-    (define-key map (kbd "M-3") 'select-window-3)
-    (define-key map (kbd "M-4") 'select-window-4)
-    (define-key map (kbd "M-5") 'select-window-5)
-    (define-key map (kbd "M-6") 'select-window-6)
-    (define-key map (kbd "M-7") 'select-window-7)
-    (define-key map (kbd "M-8") 'select-window-8)
-    (define-key map (kbd "M-9") 'select-window-9)
+    (define-key map (kbd "C-`") 'winum-select-window-by-number)
+    (define-key map (kbd "M-0") 'winum-select-window-0-or-10)
+    (define-key map (kbd "M-1") 'winum-select-window-1)
+    (define-key map (kbd "M-2") 'winum-select-window-2)
+    (define-key map (kbd "M-3") 'winum-select-window-3)
+    (define-key map (kbd "M-4") 'winum-select-window-4)
+    (define-key map (kbd "M-5") 'winum-select-window-5)
+    (define-key map (kbd "M-6") 'winum-select-window-6)
+    (define-key map (kbd "M-7") 'winum-select-window-7)
+    (define-key map (kbd "M-8") 'winum-select-window-8)
+    (define-key map (kbd "M-9") 'winum-select-window-9)
     map)
   "Keymap used in by `winum-mode'.")
 
@@ -121,76 +121,76 @@ numbers in the mode-line.")
       (winum--init)
     (winum--deinit)))
 
-(defun select-window-0-or-10 (&optional arg)
+(defun winum-select-window-0-or-10 (&optional arg)
   "Jump to window 0 if assigned or 10 if exists.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (let ((n (if (winum-get-window-by-number 0)
                (if arg '- 0)
              (if arg -10 10))))
-    (select-window-by-number n)))
+    (winum-select-window-by-number n)))
 
-(defun select-window-0 (&optional arg)
+(defun winum-select-window-0 (&optional arg)
   "Jump to window 0.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
-  (select-window-by-number (if arg '- 0)))
+  (winum-select-window-by-number (if arg '- 0)))
 
-(defun select-window-1 (&optional arg)
+(defun winum-select-window-1 (&optional arg)
   "Jump to window 1.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
-  (select-window-by-number (if arg -1 1)))
+  (winum-select-window-by-number (if arg -1 1)))
 
-(defun select-window-2 (&optional arg)
+(defun winum-select-window-2 (&optional arg)
   "Jump to window 2.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
-  (select-window-by-number (if arg -2 2)))
+  (winum-select-window-by-number (if arg -2 2)))
 
-(defun select-window-3 (&optional arg)
+(defun winum-select-window-3 (&optional arg)
   "Jump to window 3.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
-  (select-window-by-number (if arg -3 3)))
+  (winum-select-window-by-number (if arg -3 3)))
 
-(defun select-window-4 (&optional arg)
+(defun winum-select-window-4 (&optional arg)
   "Jump to window 4.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
-  (select-window-by-number (if arg -4 4)))
+  (winum-select-window-by-number (if arg -4 4)))
 
-(defun select-window-5 (&optional arg)
+(defun winum-select-window-5 (&optional arg)
   "Jump to window 5.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
-  (select-window-by-number (if arg -5 5)))
+  (winum-select-window-by-number (if arg -5 5)))
 
-(defun select-window-6 (&optional arg)
+(defun winum-select-window-6 (&optional arg)
   "Jump to window 6.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
-  (select-window-by-number (if arg -6 6)))
+  (winum-select-window-by-number (if arg -6 6)))
 
-(defun select-window-7 (&optional arg)
+(defun winum-select-window-7 (&optional arg)
   "Jump to window 7.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
-  (select-window-by-number (if arg -7 7)))
+  (winum-select-window-by-number (if arg -7 7)))
 
-(defun select-window-8 (&optional arg)
+(defun winum-select-window-8 (&optional arg)
   "Jump to window 8.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
-  (select-window-by-number (if arg -8 8)))
+  (winum-select-window-by-number (if arg -8 8)))
 
-(defun select-window-9 (&optional arg)
+(defun winum-select-window-9 (&optional arg)
   "Jump to window 9.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
-  (select-window-by-number (if arg -9 9)))
+  (winum-select-window-by-number (if arg -9 9)))
 
-(defun select-window-by-number (&optional arg)
+(defun winum-select-window-by-number (&optional arg)
   "Select or delete window which number is specified by ARG.
 If the number is negative, delete the window instead of selecting it.
 There are several ways to provide the number:
