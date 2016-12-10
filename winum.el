@@ -96,18 +96,6 @@ numbers in the mode-line.")
 
 (defvar winum-keymap
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "M-m `") 'select-window-by-number)
-    (define-key map (kbd "M-m 0") 'select-window-0-or-10)
-    (define-key map (kbd "M-m 1") 'select-window-1)
-    (define-key map (kbd "M-m 2") 'select-window-2)
-    (define-key map (kbd "M-m 3") 'select-window-3)
-    (define-key map (kbd "M-m 4") 'select-window-4)
-    (define-key map (kbd "M-m 5") 'select-window-5)
-    (define-key map (kbd "M-m 6") 'select-window-6)
-    (define-key map (kbd "M-m 7") 'select-window-7)
-    (define-key map (kbd "M-m 8") 'select-window-8)
-    (define-key map (kbd "M-m 9") 'select-window-9)
-
     (define-key map (kbd "C-`") 'select-window-by-number)
     (define-key map (kbd "M-0") 'select-window-0-or-10)
     (define-key map (kbd "M-1") 'select-window-1)
