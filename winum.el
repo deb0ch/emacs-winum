@@ -22,6 +22,7 @@
 ;; URL: http://github.com/deb0ch/winum.el
 ;; Created: 2016
 ;; Compatibility: GNU Emacs 24.x
+;; Package-requires: ((cl-lib "0.5"))
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -35,10 +36,10 @@
 ;;
 ;;; Code:
 
-(eval-when-compile (require 'cl))
-
 ;; FIXME: Error during redisplay: (eval (winum-get-number-string)) signaled
 ;;        (wrong-type-argument numberp nil) when opening a helm buffer.
+
+(eval-when-compile (require 'cl-lib))
 
 (defgroup winum nil
   "Navigate and manage windows using numbers."
