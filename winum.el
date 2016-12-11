@@ -121,6 +121,7 @@ numbers in the mode-line.")
       (winum--init)
     (winum--deinit)))
 
+;;;###autoload
 (defun winum-select-window-0-or-10 (&optional arg)
   "Jump to window 0 if assigned or 10 if exists.
 If prefix ARG is given, delete the window instead of selecting it."
@@ -130,66 +131,77 @@ If prefix ARG is given, delete the window instead of selecting it."
              (if arg -10 10))))
     (winum-select-window-by-number n)))
 
+;;;###autoload
 (defun winum-select-window-0 (&optional arg)
   "Jump to window 0.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (winum-select-window-by-number (if arg '- 0)))
 
+;;;###autoload
 (defun winum-select-window-1 (&optional arg)
   "Jump to window 1.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (winum-select-window-by-number (if arg -1 1)))
 
+;;;###autoload
 (defun winum-select-window-2 (&optional arg)
   "Jump to window 2.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (winum-select-window-by-number (if arg -2 2)))
 
+;;;###autoload
 (defun winum-select-window-3 (&optional arg)
   "Jump to window 3.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (winum-select-window-by-number (if arg -3 3)))
 
+;;;###autoload
 (defun winum-select-window-4 (&optional arg)
   "Jump to window 4.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (winum-select-window-by-number (if arg -4 4)))
 
+;;;###autoload
 (defun winum-select-window-5 (&optional arg)
   "Jump to window 5.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (winum-select-window-by-number (if arg -5 5)))
 
+;;;###autoload
 (defun winum-select-window-6 (&optional arg)
   "Jump to window 6.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (winum-select-window-by-number (if arg -6 6)))
 
+;;;###autoload
 (defun winum-select-window-7 (&optional arg)
   "Jump to window 7.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (winum-select-window-by-number (if arg -7 7)))
 
+;;;###autoload
 (defun winum-select-window-8 (&optional arg)
   "Jump to window 8.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (winum-select-window-by-number (if arg -8 8)))
 
+;;;###autoload
 (defun winum-select-window-9 (&optional arg)
   "Jump to window 9.
 If prefix ARG is given, delete the window instead of selecting it."
   (interactive "P")
   (winum-select-window-by-number (if arg -9 9)))
 
+;;;###autoload
 (defun winum-select-window-by-number (&optional arg)
   "Select or delete window which number is specified by ARG.
 If the number is negative, delete the window instead of selecting it.
