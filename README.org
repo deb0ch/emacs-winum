@@ -7,7 +7,7 @@
  - [[#installation][Installation]]
  - [[#how-to-use][How to use]]
  - [[#configuration][Configuration]]
-   - [[#custom-keymap][Custom keymap]]
+   - [[#keybindings][Keybindings]]
    - [[#customize-options][Customize options]]
    - [[#configuration-file-example][Configuration file example]]
 
@@ -73,7 +73,7 @@ frames, giving the user a smoother experience of multi-screen Emacs.
   *Ex:* ~SPC u - 1 2 C-`~ to delete window 12.
 
 * Configuration
-** Custom keymap
+** Keybindings
 To define your own bindings and override the default ones, override
 =winum-keymap= before activating the mode:
 
@@ -82,7 +82,7 @@ To define your own bindings and override the default ones, override
 
   (setq winum-keymap (let ((map (make-sparse-keymap)))
                        (define-key map "\M-m 0" 'select-window-0)
-                                          ; ...
+		       ; ...
                        (define-key map "\M-m 9" 'select-window-9)
                        map))
   (winum-mode)
@@ -156,7 +156,7 @@ Several options are available through Emacs' Customize interface under
 
   List of buffers to ignore when selecting window.
 
-  Default: ='(" *which-key*")=
+  Default: '(" *which-key*")
 
 - face: =winum-face=
 
