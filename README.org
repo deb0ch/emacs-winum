@@ -12,6 +12,7 @@
    - [[#configuration-file-example][Configuration file example]]
 
 * Introduction
+
 Window numbers for Emacs: Navigate your windows and frames using numbers !
 
 This package is an extended and actively maintained version of the
@@ -21,7 +22,9 @@ with some ideas and code taken from https://github.com/abo-abo/ace-window.
 This version brings, among other things, support for number sets across multiple
 frames, giving the user a smoother experience of multi-screen Emacs.
 
+
 * Installation
+
 - Clone the repo:
 
 #+BEGIN_SRC shell
@@ -39,14 +42,18 @@ frames, giving the user a smoother experience of multi-screen Emacs.
   (winum-mode)
 #+END_SRC
 
+
 * How to use
-- =select-window-[0..9]=
 
-  Use ~M-1~ to ~M-9~ to navigate windows numbered 1 to 9.
+| Key binding | Description                                                                                 |
+|-------------+---------------------------------------------------------------------------------------------|
+| ~C-x w <n>~ | select window <n>, where <n> ranges from 0 to 9. A negative argument deletes the window.    |
+| ~C-x w `~   | select window by number. Number can be given as prefix arg or will be read from minibuffer. |
 
-  By default, ~M-0~ is bound to =select-window-0-or-10=, which behaves like
-  the other ones except that if 0 is not assigned it will act on the window 10
-  instead.
+- =select-window-0-or-10=
+
+  By default, ~C-x w 0~ is bound to =select-window-0-or-10=c. If window 0 is not
+  assigned, it will act on the window 10 instead.
 
   You can rebind this to the more straightforward =select-window-0= if you
   prefer.
@@ -54,46 +61,63 @@ frames, giving the user a smoother experience of multi-screen Emacs.
 - =select-window-by-number=
 
   If you happen to have more than 10 windows, you can use the
-  =select-window-by-number= function, bound by default to ~C-`~.
+  =select-window-by-number= function, bound by default to ~C-x w `~.
 
   This function allows several ways to input the window number:
 
   - Use a numbered prefix argument.\\
-    *Ex:* ~C-1 C-2 C`~ to select window 12.
+    *Ex:* ~C-1 C-2 C-x w `~ to select window 12.
   - Use a negative prefix argument to delete the window.\\
-    *Ex:* ~C-- C-1 C-2 C`~ to delete window 12.
+    *Ex:* ~C-- C-1 C-2 C-x w `~ to delete window 12.
   - Use the negative prefix argument to delete window 0.\\
-    *Ex:* ~C-- C-`~ to delete window 0.
+    *Ex:* ~C-- C-x w `~ to delete window 0.
   - Use the default prefix argument to delete current window.\\
-    *Ex:* ~C-u C-`~ to delete current window.
+    *Ex:* ~C-u C-x w `~ to delete current window.
   - If no prefix argument ig given, a number is read from minibuffer. A negative
     input will delete the window instead of selecting it.
 
-  *NB:* On Spacemacs you can specify the prefix argument using ~SPC u~.
-  *Ex:* ~SPC u - 1 2 C-`~ to delete window 12.
 
 * Configuration
+
 ** Keybindings
-To define your own bindings and override the default ones, override
-=winum-keymap= before activating the mode:
+
+By default, all key bindings are prefixed with a value stored in
+=winum-keymap-prefix=, by default ~C-x w~. See [[Customize options][Customize options]].
+
+The default prefix is ~C-x w~ for compatibility with common Emacs bindings. If
+you prefer no to use a prefix and have shorter key bindings, you can also
+override =winum-keymap= before activating =winum-mode=:
 
 #+BEGIN_SRC emacs-lisp
   (require 'winum)
 
-  (setq winum-keymap (let ((map (make-sparse-keymap)))
-                       (define-key map "\M-m 0" 'select-window-0)
-		       ; ...
-                       (define-key map "\M-m 9" 'select-window-9)
-                       map))
+  (setq winum-keymap
+        (let ((map (make-sparse-keymap)))
+          (define-key map (kbd "C-`") 'winum-select-window-by-number)
+          (define-key map (kbd "M-0") 'winum-select-window-0-or-10)
+          (define-key map (kbd "M-1") 'winum-select-window-1)
+          (define-key map (kbd "M-2") 'winum-select-window-2)
+          (define-key map (kbd "M-3") 'winum-select-window-3)
+          (define-key map (kbd "M-4") 'winum-select-window-4)
+          (define-key map (kbd "M-5") 'winum-select-window-5)
+          (define-key map (kbd "M-6") 'winum-select-window-6)
+          (define-key map (kbd "M-7") 'winum-select-window-7)
+          (define-key map (kbd "M-8") 'winum-select-window-8)
+          map))
+
   (winum-mode)
 #+END_SRC
-
-This way your bindings will not error when the mode is turned off.
 
 ** Customize options
 
 Several options are available through Emacs' Customize interface under
 =convenience= > =winum=:
+
+- =winum-keymap-prefix=
+
+  Prefix key sequence for keybindings.
+
+  Default: (kbd "C-x w")
 
 - =winum-scope=
 
@@ -184,25 +208,25 @@ available winum options.
   (set-face-property 'winum-face :weight 'bold)
 
   (setq window-numbering-scope            'global
-	winum-reverse-frame-list          nil
-	winum-auto-assign-0-to-minibuffer t
-	winum-assign-func                 'my-winum-assign-func
-	winum-auto-setup-mode-line        t
-	winum-mode-line-position          1
-	winum-ignored-buffers             '(" *which-key*")
-	winum-keymap (let ((map (make-sparse-keymap)))
-		       (define-key map (kbd "C-`") 'select-window-by-number)
-		       (define-key map (kbd "M-0") 'select-window-0-or-10)
-		       (define-key map (kbd "M-1") 'select-window-1)
-		       (define-key map (kbd "M-2") 'select-window-2)
-		       (define-key map (kbd "M-3") 'select-window-3)
-		       (define-key map (kbd "M-4") 'select-window-4)
-		       (define-key map (kbd "M-5") 'select-window-5)
-		       (define-key map (kbd "M-6") 'select-window-6)
-		       (define-key map (kbd "M-7") 'select-window-7)
-		       (define-key map (kbd "M-8") 'select-window-8)
-		       (define-key map (kbd "M-9") 'select-window-9)
-		       map))
+        winum-reverse-frame-list          nil
+        winum-auto-assign-0-to-minibuffer t
+        winum-assign-func                 'my-winum-assign-func
+        winum-auto-setup-mode-line        t
+        winum-mode-line-position          1
+        winum-ignored-buffers             '(" *which-key*")
+        winum-keymap (let ((map (make-sparse-keymap)))
+                       (define-key map (kbd "C-`") 'select-window-by-number)
+                       (define-key map (kbd "M-0") 'select-window-0-or-10)
+                       (define-key map (kbd "M-1") 'select-window-1)
+                       (define-key map (kbd "M-2") 'select-window-2)
+                       (define-key map (kbd "M-3") 'select-window-3)
+                       (define-key map (kbd "M-4") 'select-window-4)
+                       (define-key map (kbd "M-5") 'select-window-5)
+                       (define-key map (kbd "M-6") 'select-window-6)
+                       (define-key map (kbd "M-7") 'select-window-7)
+                       (define-key map (kbd "M-8") 'select-window-8)
+                       (define-key map (kbd "M-9") 'select-window-9)
+                       map))
 
   (winum-mode)
 #+END_SRC
