@@ -35,21 +35,24 @@
 ;; with some ideas and code taken from https://github.com/abo-abo/ace-window.
 ;;
 ;;; Code:
-
+;;
 ;; FIXME: Error during redisplay: (eval (winum-get-number-string)) signaled
 ;;        (wrong-type-argument numberp nil) when opening a helm buffer.
+;;
 
 (eval-when-compile (require 'cl-lib))
+
+;; Configuration variables -----------------------------------------------------
 
 (defgroup winum nil
   "Navigate and manage windows using numbers."
   :group 'convenience)
 
-;; FIXME: when changed from frame-local to non-local in customize, need to
-;;        force update or `winum-get-number' fails and messes the
-;;        modeline until next update.
 (defcustom winum-scope 'global
   "Frames affected by a number set."
+  ;; FIXME: when changed from frame-local to non-local in customize, need to
+  ;;        force update or `winum-get-number' fails and messes the
+  ;;        modeline until next update.
   :group 'winum
   :type  '(choice
            (const :tag "frame local" frame-local)
@@ -117,6 +120,42 @@ numbers in the mode-line.")
       (define-key map winum-keymap-prefix prefix-map))
       map)
   "Keymap used for `winum-mode'.")
+
+;; Internal variables ----------------------------------------------------------
+
+(defvar winum--max-frames 16
+  "Maximum number of frames that can be numbered.")
+
+(defvar winum--window-count nil
+  "Current count of windows to be numbered.")
+
+(defvar winum--remaining nil
+  "A list of window numbers to assign.")
+
+(defvar winum--window-vector nil
+  "Vector of windows indexed by their number.
+Used internally by winum to get a window provided a number.")
+
+(defvar winum--numbers-table nil
+  "Hash table of numbers indexed by their window.
+Used internally by winum to get a number provided a window.")
+
+(defvar winum--frames-table nil
+  "Table linking windows to numbers and numbers to windows for each frame.
+
+Used only when `winum-scope' is 'frame-local to keep track of
+separate window numbers sets in every frame.
+
+It is a hash table using Emacs frames as keys and cons of the form
+\(`winum--window-vector' . `winum--numbers-table')
+as values.
+
+To get a window given a number, use the `car' of a value.
+To get a number given a window, use the `cdr' of a value.
+
+Such a structure allows for per-frame bidirectional fast access.")
+
+;; Interactive functions -------------------------------------------------------
 
 ;;;###autoload
 (define-minor-mode winum-mode
@@ -241,6 +280,8 @@ There are several ways to provide the number:
           (winum--switch-to-window w))
       (error "No window numbered %d" n))))
 
+;; Public API ------------------------------------------------------------------
+
 ;;;###autoload
 (defun winum-get-window-by-number (n)
   "Return window numbered N if exists, nil otherwise."
@@ -273,39 +314,7 @@ WINDOW: if specified, the window of which we want to know the number.
         (gethash w (cdr (gethash (selected-frame) winum--frames-table)))
       (gethash w winum--numbers-table))))
 
-;; Implementation
-
-(defvar winum--max-frames 16
-  "Maximum number of frames that can be numbered.")
-
-(defvar winum--window-count nil
-  "Current count of windows to be numbered.")
-
-(defvar winum--remaining nil
-  "A list of window numbers to assign.")
-
-(defvar winum--window-vector nil
-  "Vector of windows indexed by their number.
-Used internally by winum to get a window provided a number.")
-
-(defvar winum--numbers-table nil
-  "Hash table of numbers indexed by their window.
-Used internally by winum to get a number provided a window.")
-
-(defvar winum--frames-table nil
-  "Table linking windows to numbers and numbers to windows for each frame.
-
-Used only when `winum-scope' is 'frame-local to keep track of
-separate window numbers sets in every frame.
-
-It is a hash table using Emacs frames as keys and cons of the form
-\(`winum--window-vector' . `winum--numbers-table')
-as values.
-
-To get a window given a number, use the `car' of a value.
-To get a number given a window, use the `cdr' of a value.
-
-Such a structure allows for per-frame bidirectional fast access.")
+;; Internal functions ----------------------------------------------------------
 
 (defun winum--init ()
   "Initialize winum-mode."
