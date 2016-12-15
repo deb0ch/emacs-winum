@@ -88,7 +88,8 @@ numbers in the mode-line.")
 
 (defcustom winum-ignored-buffers '(" *which-key*")
   "List of buffers to ignore when selecting window."
-  :type '(repeat string))
+  :group 'winum
+  :type  '(repeat string))
 
 (defface winum-face '()
   "Face used for the number in the mode-line."
