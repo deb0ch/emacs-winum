@@ -12,7 +12,6 @@
    - [[#configuration-file-example][Configuration file example]]
 
 * Introduction
-
 Window numbers for Emacs: Navigate your windows and frames using numbers !
 
 This package is an extended and actively maintained version of the
@@ -22,9 +21,7 @@ with some ideas and code taken from https://github.com/abo-abo/ace-window.
 This version brings, among other things, support for number sets across multiple
 frames, giving the user a smoother experience of multi-screen Emacs.
 
-
 * Installation
-
 - Clone the repo:
 
 #+BEGIN_SRC shell
@@ -42,9 +39,7 @@ frames, giving the user a smoother experience of multi-screen Emacs.
   (winum-mode)
 #+END_SRC
 
-
 * How to use
-
 | Key binding | Description                                                                                 |
 |-------------+---------------------------------------------------------------------------------------------|
 | ~C-x w <n>~ | select window <n>, where <n> ranges from 0 to 9. A negative argument deletes the window.    |
@@ -76,48 +71,49 @@ frames, giving the user a smoother experience of multi-screen Emacs.
   - If no prefix argument ig given, a number is read from minibuffer. A negative
     input will delete the window instead of selecting it.
 
-
 * Configuration
-
 ** Keybindings
-
 By default, all key bindings are prefixed with a value stored in
 =winum-keymap-prefix=, by default ~C-x w~. See [[Customize options][Customize options]].
 
-The default prefix is ~C-x w~ for compatibility with common Emacs bindings. If
-you prefer no to use a prefix and have shorter key bindings, you can also
-override =winum-keymap= before activating =winum-mode=:
+The default prefix is ~C-x w~ for compatibility with native Emacs bindings.
+However, it gives long key bindings and can be incomfortable to use.
+
+For instance, you can replace the native prefix with ~C-c~ or ~M-m~.
+
+If you prefer no to use a prefix to have even shorter bindings, you can also
+directly override =winum-keymap=:
 
 #+BEGIN_SRC emacs-lisp
   (require 'winum)
 
-  (setq winum-keymap
-        (let ((map (make-sparse-keymap)))
-          (define-key map (kbd "C-`") 'winum-select-window-by-number)
-          (define-key map (kbd "M-0") 'winum-select-window-0-or-10)
-          (define-key map (kbd "M-1") 'winum-select-window-1)
-          (define-key map (kbd "M-2") 'winum-select-window-2)
-          (define-key map (kbd "M-3") 'winum-select-window-3)
-          (define-key map (kbd "M-4") 'winum-select-window-4)
-          (define-key map (kbd "M-5") 'winum-select-window-5)
-          (define-key map (kbd "M-6") 'winum-select-window-6)
-          (define-key map (kbd "M-7") 'winum-select-window-7)
-          (define-key map (kbd "M-8") 'winum-select-window-8)
-          map))
+  (setcdr (assoc 'winum-mode minor-mode-map-alist)
+      (let ((map (make-sparse-keymap)))
+        (define-key map (kbd "C-`") 'winum-select-window-by-number)
+        (define-key map (kbd "M-0") 'winum-select-window-0-or-10)
+        (define-key map (kbd "M-1") 'winum-select-window-1)
+        (define-key map (kbd "M-2") 'winum-select-window-2)
+        (define-key map (kbd "M-3") 'winum-select-window-3)
+        (define-key map (kbd "M-4") 'winum-select-window-4)
+        (define-key map (kbd "M-5") 'winum-select-window-5)
+        (define-key map (kbd "M-6") 'winum-select-window-6)
+        (define-key map (kbd "M-7") 'winum-select-window-7)
+        (define-key map (kbd "M-8") 'winum-select-window-8)
+        map))
 
   (winum-mode)
 #+END_SRC
 
-** Customize options
+This is a little bit hacky but is less code than using =define-key=, and will
+also shadow the old bindings.
 
+**NB:** the ~`~ key is convenient on qwerty keyboards, however if you are using
+        a different keyboard you should replace it with the key beside ~1~.
+        For instance, ~²~ on an azerty keyboard.
+
+** Customize options
 Several options are available through Emacs' Customize interface under
 =convenience= > =winum=:
-
-- =winum-keymap-prefix=
-
-  Prefix key sequence for keybindings.
-
-  Default: (kbd "C-x w")
 
 - =winum-scope=
 
@@ -182,12 +178,17 @@ Several options are available through Emacs' Customize interface under
 
   Default: '(" *which-key*")
 
+- =winum-keymap-prefix=
+
+  Prefix key sequence for keybindings.
+
+  Default: (kbd "C-x w")
+
 - face: =winum-face=
 
   Face used for the number in the mode-line.
 
 ** Configuration file example
-
 Here is an example that you could put in your =.emacs=, which includes all
 available winum options.
 
@@ -195,6 +196,20 @@ available winum options.
   (add-to-list 'load-path "/path/to/install/folder/winum.el/")
 
   (require 'winum)
+
+  (setcdr (assoc 'winum-mode minor-mode-map-alist)
+      (let ((map (make-sparse-keymap)))
+        (define-key map (kbd "C-`") 'winum-select-window-by-number)
+        (define-key map (kbd "M-0") 'winum-select-window-0-or-10)
+        (define-key map (kbd "M-1") 'winum-select-window-1)
+        (define-key map (kbd "M-2") 'winum-select-window-2)
+        (define-key map (kbd "M-3") 'winum-select-window-3)
+        (define-key map (kbd "M-4") 'winum-select-window-4)
+        (define-key map (kbd "M-5") 'winum-select-window-5)
+        (define-key map (kbd "M-6") 'winum-select-window-6)
+        (define-key map (kbd "M-7") 'winum-select-window-7)
+        (define-key map (kbd "M-8") 'winum-select-window-8)
+        map))
 
   (defun my-winum-assign-func ()
     (cond
@@ -205,7 +220,7 @@ available winum options.
      (t
       nil)))
 
-  (set-face-property 'winum-face :weight 'bold)
+  (set-face-attribute 'winum-face nil :weight 'bold)
 
   (setq window-numbering-scope            'global
         winum-reverse-frame-list          nil
@@ -214,19 +229,7 @@ available winum options.
         winum-auto-setup-mode-line        t
         winum-mode-line-position          1
         winum-ignored-buffers             '(" *which-key*")
-        winum-keymap (let ((map (make-sparse-keymap)))
-                       (define-key map (kbd "C-`") 'select-window-by-number)
-                       (define-key map (kbd "M-0") 'select-window-0-or-10)
-                       (define-key map (kbd "M-1") 'select-window-1)
-                       (define-key map (kbd "M-2") 'select-window-2)
-                       (define-key map (kbd "M-3") 'select-window-3)
-                       (define-key map (kbd "M-4") 'select-window-4)
-                       (define-key map (kbd "M-5") 'select-window-5)
-                       (define-key map (kbd "M-6") 'select-window-6)
-                       (define-key map (kbd "M-7") 'select-window-7)
-                       (define-key map (kbd "M-8") 'select-window-8)
-                       (define-key map (kbd "M-9") 'select-window-9)
-                       map))
+        winum-keymap-prefix               nil)
 
   (winum-mode)
 #+END_SRC
