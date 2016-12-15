@@ -94,31 +94,32 @@ numbers in the mode-line.")
   :group 'winum
   :type  '(repeat string))
 
-(defface winum-face '()
-  "Face used for the number in the mode-line."
-  :group 'winum)
-
 (defcustom winum-keymap-prefix (kbd "C-x w")
   "Prefix key sequence for keybindings."
   :group 'winum
   :type  'string)
 
+(defface winum-face '()
+  "Face used for the number in the mode-line."
+  :group 'winum)
+
 (defvar winum-keymap
-  (let ((map (make-sparse-keymap)))
-    (let ((prefix-map (make-sparse-keymap)))
-      (define-key prefix-map (kbd "`") 'winum-select-window-by-number)
-      (define-key prefix-map (kbd "0") 'winum-select-window-0-or-10)
-      (define-key prefix-map (kbd "1") 'winum-select-window-1)
-      (define-key prefix-map (kbd "2") 'winum-select-window-2)
-      (define-key prefix-map (kbd "3") 'winum-select-window-3)
-      (define-key prefix-map (kbd "4") 'winum-select-window-4)
-      (define-key prefix-map (kbd "5") 'winum-select-window-5)
-      (define-key prefix-map (kbd "6") 'winum-select-window-6)
-      (define-key prefix-map (kbd "7") 'winum-select-window-7)
-      (define-key prefix-map (kbd "8") 'winum-select-window-8)
-      (define-key prefix-map (kbd "9") 'winum-select-window-9)
-      (define-key map winum-keymap-prefix prefix-map))
-      map)
+  (when winum-keymap-prefix
+    (let ((map (make-sparse-keymap)))
+      (let ((prefix-map (make-sparse-keymap)))
+        (define-key prefix-map (kbd "`") 'winum-select-window-by-number)
+        (define-key prefix-map (kbd "0") 'winum-select-window-0-or-10)
+        (define-key prefix-map (kbd "1") 'winum-select-window-1)
+        (define-key prefix-map (kbd "2") 'winum-select-window-2)
+        (define-key prefix-map (kbd "3") 'winum-select-window-3)
+        (define-key prefix-map (kbd "4") 'winum-select-window-4)
+        (define-key prefix-map (kbd "5") 'winum-select-window-5)
+        (define-key prefix-map (kbd "6") 'winum-select-window-6)
+        (define-key prefix-map (kbd "7") 'winum-select-window-7)
+        (define-key prefix-map (kbd "8") 'winum-select-window-8)
+        (define-key prefix-map (kbd "9") 'winum-select-window-9)
+        (define-key map winum-keymap-prefix prefix-map))
+      map))
   "Keymap used for `winum-mode'.")
 
 ;; Internal variables ----------------------------------------------------------
