@@ -38,6 +38,9 @@
 ;;
 ;; FIXME: Error during redisplay: (eval (winum-get-number-string)) signaled
 ;;        (wrong-type-argument numberp nil) when opening a helm buffer.
+;; FIXME: when `winum-scope' is changed from frame-local to non-local in
+;;        customize, the mode-line is messed up until next `winum-update'.
+;; FIXME: The mode-line's window number is not always up to date in all frames.
 ;;
 
 (eval-when-compile (require 'cl-lib))
@@ -50,9 +53,6 @@
 
 (defcustom winum-scope 'global
   "Frames affected by a number set."
-  ;; FIXME: when changed from frame-local to non-local in customize, need to
-  ;;        force update or `winum-get-number' fails and messes the
-  ;;        modeline until next update.
   :group 'winum
   :type  '(choice
            (const :tag "frame local" frame-local)
