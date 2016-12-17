@@ -162,7 +162,8 @@ Several options are available through Emacs' Customize interface under
   automatic assignment begins. The function should return a number to have it
   assigned to the current-window, =nil= otherwise.
 
-  Default: =nil=
+  This function along with `winum-auto-assign-0-to-minibuffer' are the only ways
+  to have 0 assigned to a window.
 
   Example: always assign *Calculator* the number 9 and *NeoTree* the number 0:
 
@@ -178,6 +179,8 @@ Several options are available through Emacs' Customize interface under
 
   (setq winum-assign-func 'my-winum-assign-func)
 #+END_SRC
+
+  Default: =nil=
 
 - =winum-auto-setup-mode-line=
 
@@ -195,7 +198,7 @@ Several options are available through Emacs' Customize interface under
 
 - =winum-ignored-buffers=
 
-  List of buffers to ignore when selecting window.
+  List of buffers to ignore when assigning numbers.
 
   Default: '(" *which-key*")
 

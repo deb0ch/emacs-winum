@@ -77,8 +77,22 @@ Has effect only when `winum-scope' is not 'frame-local."
   "Function called for each window by `winum-mode'.
 This is called before automatic assignment begins.  The function should
 return a number to have it assigned to the current-window, nil otherwise.
+
 This function along with `winum-auto-assign-0-to-minibuffer' are the only
-ways to have 0 assigned to a window."
+ways to have 0 assigned to a window.
+
+Example: always assign *Calculator* the number 9 and *NeoTree* the number 0:
+
+  (defun my-winum-assign-func ()
+    (cond
+     ((equal (buffer-name) \"*Calculator*\")
+      9)
+     ((string-match-p (buffer-name) \".*\\*NeoTree\\*.*\")
+      0)
+     (t
+      nil)))
+
+  (setq winum-assign-func 'my-winum-assign-func)"
   :group 'winum
   :type  'function)
 
@@ -93,7 +107,7 @@ numbers in the mode-line.")
   :type  'integer)
 
 (defcustom winum-ignored-buffers '(" *which-key*")
-  "List of buffers to ignore when selecting window."
+  "List of buffers to ignore when assigning numbers."
   :group 'winum
   :type  '(repeat string))
 
