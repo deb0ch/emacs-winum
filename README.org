@@ -68,7 +68,7 @@ Emacs configuration:
 
 - =select-window-0-or-10=
 
-  By default, ~C-x w 0~ is bound to =select-window-0-or-10=c. If window 0 is not
+  By default, ~C-x w 0~ is bound to =select-window-0-or-10=. If window 0 is not
   assigned, it will act on the window 10 instead.
 
   You can rebind this to the more straightforward =select-window-0= if you
@@ -128,9 +128,9 @@ directly override =winum-keymap=:
 This is a little bit hacky but is less code than using =define-key=, and will
 also shadow the old bindings.
 
-**NB:** the ~`~ key is convenient on qwerty keyboards, however if you are using
-        a different keyboard you should replace it with the key beside ~1~.
-        For instance, ~²~ on an azerty keyboard.
+*NB:* the ~`~ key is convenient on qwerty keyboards, however if you are using a
+      different keyboard you should replace it with the key beside ~1~.
+      For instance, ~²~ on an azerty keyboard.
 
 ** Customize options
 Several options are available through Emacs' Customize interface under
@@ -138,15 +138,15 @@ Several options are available through Emacs' Customize interface under
 
 - =winum-scope=
 
-  Frames affected by a number set. Choices are ='frame-local= ='visible= or
-  ='global=.
+  Frames affected by a number set. Choices are 'frame-local 'visible or
+  'global.
 
-  Default: ='global=
+  Default: 'global
 
 - =winum-reverse-frame-list=
 
   If t, order frames by reverse order of creation. Has effect only when
-  =winum-scope= is not ='frame-local=.
+  =winum-scope= is not 'frame-local.
 
   Default: =nil=
 
@@ -191,7 +191,7 @@ Several options are available through Emacs' Customize interface under
 
   The position in the mode-line =winum-mode= displays the number.
 
-  Default: 1
+  Default: =1=
 
 - =winum-ignored-buffers=
 
@@ -203,7 +203,7 @@ Several options are available through Emacs' Customize interface under
 
   Prefix key sequence for keybindings.
 
-  Default: (kbd "C-x w")
+  Default: =(kbd "C-x w")=
 
 - face: =winum-face=
 
