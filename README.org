@@ -12,6 +12,7 @@
    - [[#keybindings][Keybindings]]
    - [[#customize-options][Customize options]]
    - [[#configuration-file-example][Configuration file example]]
+ - [[#future-developments][Future developments]]
 
 * Introduction
 Window numbers for Emacs: Navigate your windows and frames using numbers !
@@ -257,3 +258,30 @@ available winum options.
 
   (winum-mode)
 #+END_SRC
+
+* Future developments
+- send buffer to numbered window
+
+  Send current window's buffer to window N. With prefix argument focus will
+  follow.
+
+  Also provide a `winum-send-buffer-to-window-by-number` function (and find
+  shorter names).
+
+- swap buffer with numbered window
+
+  Same as previous, but will swap buffers instead of just sending them.
+
+  Also provide a `winum-swap-buffre-with-window-by-number` function (and find
+  better names).
+
+- Evilify
+
+  Adapt the package to the famous `evil-mode` and use a leader key.
+
+- Override native =other-window= (~C-x o~) to use window numbers
+
+- Autocomplete read-from-minibuffer
+
+- Feel free to submit any issue or a pull request, including the above
+  mentionned points :)
