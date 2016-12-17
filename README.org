@@ -1,10 +1,12 @@
-[[https://github.com/syl20bnr/spacemacs][file:https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg]]
-
 #+TITLE: Window numbers for Emacs !
+
+[[https://github.com/syl20bnr/spacemacs][file:https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg]] [[https://melpa.org/#/winum][file:https://melpa.org/packages/winum-badge.svg]]
 
 * Contents :TOC:
  - [[#introduction][Introduction]]
  - [[#installation][Installation]]
+   - [[#using-melpa][Using Melpa]]
+   - [[#manual-installation][Manual installation]]
  - [[#how-to-use][How to use]]
  - [[#configuration][Configuration]]
    - [[#keybindings][Keybindings]]
@@ -15,13 +17,32 @@
 Window numbers for Emacs: Navigate your windows and frames using numbers !
 
 This package is an extended and actively maintained version of the
-https://github.com/nschum/window-numbering.el package by Nikolaj Schumacher,
-with some ideas and code taken from https://github.com/abo-abo/ace-window.
+[[https://github.com/nschum/window-numbering.el][window-numbering]] package by Nikolaj Schumacher, with some ideas and code taken
+from [[https://github.com/abo-abo/ace-window][ace-window]].
 
 This version brings, among other things, support for number sets across multiple
 frames, giving the user a smoother experience of multi-screen Emacs.
 
 * Installation
+** Using Melpa
+The recommended way of installing =winum= is from the [[https://melpa.org/#/winum][Melpa]] package repository:
+
+#+BEGIN_SRC emacs-lisp
+M-x package-install RET winum RET
+#+END_SRC
+
+You will find instructions to setup Melpa [[https://github.com/melpa/melpa#usage][here]] if you don't have it setup yet.
+
+Once the package is installed, you will need to activate =winum-mode= in your
+Emacs configuration:
+
+#+BEGIN_SRC emacs-lisp
+  (require 'winum)
+
+  (winum-mode)
+#+END_SRC
+
+** Manual installation
 - Clone the repo:
 
 #+BEGIN_SRC shell
@@ -74,12 +95,12 @@ frames, giving the user a smoother experience of multi-screen Emacs.
 * Configuration
 ** Keybindings
 By default, all key bindings are prefixed with a value stored in
-=winum-keymap-prefix=, by default ~C-x w~. See [[Customize options][Customize options]].
+=winum-keymap-prefix=, by default ~C-x w~. See [[#customize-options][Customize options]].
 
 The default prefix is ~C-x w~ for compatibility with native Emacs bindings.
 However, it gives long key bindings and can be incomfortable to use.
 
-For instance, you can replace the native prefix with ~C-c~ or ~M-m~.
+For instance, you could replace the native prefix with ~C-c~ or ~M-m~.
 
 If you prefer no to use a prefix to have even shorter bindings, you can also
 directly override =winum-keymap=:
