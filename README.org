@@ -112,6 +112,7 @@ directly override =winum-keymap=:
   (setcdr (assoc 'winum-mode minor-mode-map-alist)
       (let ((map (make-sparse-keymap)))
         (define-key map (kbd "C-`") 'winum-select-window-by-number)
+        (define-key map (kbd "C-²") 'winum-select-window-by-number)
         (define-key map (kbd "M-0") 'winum-select-window-0-or-10)
         (define-key map (kbd "M-1") 'winum-select-window-1)
         (define-key map (kbd "M-2") 'winum-select-window-2)
@@ -129,9 +130,10 @@ directly override =winum-keymap=:
 This is a little bit hacky but is less code than using =define-key=, and will
 also shadow the old bindings.
 
-*NB:* the ~`~ key is convenient on qwerty keyboards, however if you are using a
-      different keyboard you should replace it with the key beside ~1~.
-      For instance, ~²~ on an azerty keyboard.
+*NB:* Both ~`~ and ~²~ are mapped to =winum-select-window-by-number= to handle
+      both =qwerty= and =azerty= keyboard layouts.
+      If you are using a different kind of layout, the recommended place to map
+      it is the key beside ~1~.
 
 ** Customize options
 Several options are available through Emacs' Customize interface under
@@ -225,6 +227,7 @@ available winum options.
   (setcdr (assoc 'winum-mode minor-mode-map-alist)
       (let ((map (make-sparse-keymap)))
         (define-key map (kbd "C-`") 'winum-select-window-by-number)
+        (define-key map (kbd "C-²") 'winum-select-window-by-number)
         (define-key map (kbd "M-0") 'winum-select-window-0-or-10)
         (define-key map (kbd "M-1") 'winum-select-window-1)
         (define-key map (kbd "M-2") 'winum-select-window-2)
