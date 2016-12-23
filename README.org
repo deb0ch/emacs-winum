@@ -4,6 +4,7 @@
 
 * Contents :TOC:
  - [[#introduction][Introduction]]
+ - [[#whats-changed-since-window-numbering][What's changed since window-numbering]]
  - [[#installation][Installation]]
    - [[#using-melpa][Using Melpa]]
    - [[#manual-installation][Manual installation]]
@@ -24,6 +25,30 @@ from [[https://github.com/abo-abo/ace-window][ace-window]].
 This version brings, among other things, support for number sets across multiple
 frames, giving the user a smoother experience of multi-screen Emacs.
 
+* What's changed since window-numbering
+This package brings a lot of additions to the old window-numbering:
+
+- Number sets across multiple frames, giving a smoother experience of
+  multi-screen Emacs
+- 3 possible scopes: frame-local, visible frames or all frames
+- =get-window-by-number= public function, needed in Spacemacs and for future
+  developments.
+- Unlimited window numbers
+- =select-window-by-number= can now be used interactively to select a window
+  using prefix arg or =read-from-minibuffer=, allowing the selection of an
+  unlimited number.
+- Ignore buffers by name
+- =;;;###autoload= all functions that should have public visibility
+- Improved =customize= integration
+- Removed =window-numbering-before-assign-hook=, which just duplicated
+  =window-numbering-assign-func= in a more complicated fashion
+- New default key bindings under the ~C-x w~ prefix, to be compliant with Emacs
+  key bindings conventions and native Emacs key bindings
+- =winum-set-keymap-prefix= helper function to change the prefix more easily
+- More detailed README.org
+- Improved docstrings
+- Simplified implementation for better readability
+
 * Installation
 ** Using Melpa
 The recommended way of installing =winum= is from the [[https://melpa.org/#/winum][Melpa]] package repository:
@@ -34,8 +59,8 @@ M-x package-install RET winum RET
 
 You will find instructions to setup Melpa [[https://github.com/melpa/melpa#usage][here]] if you don't have it setup yet.
 
-Once the package is installed, you will need to activate =winum-mode= in your
-Emacs configuration:
+Once the package is installed, you need to load and activate =winum-mode= in
+your Emacs configuration:
 
 #+BEGIN_SRC emacs-lisp
   (require 'winum)
@@ -265,27 +290,17 @@ available winum options.
 
 * Future developments
 - send buffer to numbered window
-
   Send current window's buffer to window N. With prefix argument focus will
   follow.
 
-  Also provide a `winum-send-buffer-to-window-by-number` function (and find
-  shorter names).
-
 - swap buffer with numbered window
-
   Same as previous, but will swap buffers instead of just sending them.
 
-  Also provide a `winum-swap-buffre-with-window-by-number` function (and find
-  better names).
-
 - Evilify
-
   Adapt the package to the famous `evil-mode` and use a leader key.
 
 - Override native =other-window= (~C-x o~) to use window numbers
 
 - Autocomplete read-from-minibuffer
 
-- Feel free to submit any issue or a pull request, including the above
-  mentionned points :)
+- Things that you have thought of and I haven't :smile_cat:
