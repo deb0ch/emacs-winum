@@ -95,16 +95,23 @@ Emacs configuration:
 
 * Configuration
 ** Keybindings
-By default, all key bindings are prefixed with a value stored in
-=winum-keymap-prefix=, by default ~C-x w~. See [[#customize-options][Customize options]].
+The default prefix for key bindings is ~C-x w~ for compatibility with native
+Emacs bindings.
 
-The default prefix is ~C-x w~ for compatibility with native Emacs bindings.
-However, it gives long key bindings and can be incomfortable to use.
+If you don't like ~C-x w~, you can set a prefix of your choosing using the
+function =winum-set-keymap-prefix=:
 
-For instance, you could replace the native prefix with ~C-c~ or ~M-m~.
+#+BEGIN_SRC elisp
+  (winum-set-keymap-prefix (kbd "C-c"))
+#+END_SRC
 
-If you prefer no to use a prefix to have even shorter bindings, you can also
-directly override =winum-keymap=:
+This function overrides the value of =winum-keymap=, so you should call it
+before customization of =winum-keymap= and/or after customization of
+=winum-base-map=. Its argument must be a key sequence, like the ones returned by
+=kbd=.
+
+If you prefer no to use a prefix and have even shorter bindings, you can also
+override =winum-keymap= in the minor mode bindings table:
 
 #+BEGIN_SRC emacs-lisp
   (require 'winum)
@@ -127,13 +134,16 @@ directly override =winum-keymap=:
   (winum-mode)
 #+END_SRC
 
-This is a little bit hacky but is less code than using =define-key=, and will
-also shadow the old bindings.
+You can also use the more conventional =define-key= on =winum-keymap=:
 
-*NB:* Both ~`~ and ~²~ are mapped to =winum-select-window-by-number= to handle
-      both =qwerty= and =azerty= keyboard layouts.
-      If you are using a different kind of layout, the recommended place to map
-      it is the key beside ~1~.
+#+BEGIN_SRC emacs-lisp
+  (define-key winum-keymap (kbd "C-x y o l o") 'winum-select-window-by-number)
+#+END_SRC
+
+*NB:* Both ~`~ and ~²~ are mapped to =winum-select-window-by-number= by default
+      to handle both =qwerty= and =azerty= keyboard layouts. If you are using a
+      different kind of layout, the recommended place to map it is the key
+      beside ~1~.
 
 ** Customize options
 Several options are available through Emacs' Customize interface under
@@ -205,12 +215,6 @@ Several options are available through Emacs' Customize interface under
 
   Default: '(" *which-key*")
 
-- =winum-keymap-prefix=
-
-  Prefix key sequence for keybindings.
-
-  Default: =(kbd "C-x w")=
-
 - face: =winum-face=
 
   Face used for the number in the mode-line.
@@ -220,8 +224,6 @@ Here is an example that you could put in your =.emacs=, which includes all
 available winum options.
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path "/path/to/install/folder/winum.el/")
-
   (require 'winum)
 
   (setcdr (assoc 'winum-mode minor-mode-map-alist)
@@ -256,8 +258,7 @@ available winum options.
         winum-assign-func                 'my-winum-assign-func
         winum-auto-setup-mode-line        t
         winum-mode-line-position          1
-        winum-ignored-buffers             '(" *which-key*")
-        winum-keymap-prefix               nil)
+        winum-ignored-buffers             '(" *which-key*"))
 
   (winum-mode)
 #+END_SRC

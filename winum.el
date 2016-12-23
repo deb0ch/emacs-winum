@@ -111,33 +111,30 @@ numbers in the mode-line.")
   :group 'winum
   :type  '(repeat string))
 
-(defcustom winum-keymap-prefix (kbd "C-x w")
-  "Prefix key sequence for keybindings."
-  :group 'winum
-  :type  'string)
-
 (defface winum-face '()
   "Face used for the number in the mode-line."
   :group 'winum)
 
-(defvar winum-keymap
-  (when winum-keymap-prefix
-    (let ((map (make-sparse-keymap)))
-      (let ((prefix-map (make-sparse-keymap)))
-        (define-key prefix-map (kbd "`") 'winum-select-window-by-number)
-        (define-key prefix-map (kbd "²") 'winum-select-window-by-number)
-        (define-key prefix-map (kbd "0") 'winum-select-window-0-or-10)
-        (define-key prefix-map (kbd "1") 'winum-select-window-1)
-        (define-key prefix-map (kbd "2") 'winum-select-window-2)
-        (define-key prefix-map (kbd "3") 'winum-select-window-3)
-        (define-key prefix-map (kbd "4") 'winum-select-window-4)
-        (define-key prefix-map (kbd "5") 'winum-select-window-5)
-        (define-key prefix-map (kbd "6") 'winum-select-window-6)
-        (define-key prefix-map (kbd "7") 'winum-select-window-7)
-        (define-key prefix-map (kbd "8") 'winum-select-window-8)
-        (define-key prefix-map (kbd "9") 'winum-select-window-9)
-        (define-key map winum-keymap-prefix prefix-map))
-      map))
+(defvar winum-base-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "`") 'winum-select-window-by-number)
+    (define-key map (kbd "²") 'winum-select-window-by-number)
+    (define-key map (kbd "0") 'winum-select-window-0-or-10)
+    (define-key map (kbd "1") 'winum-select-window-1)
+    (define-key map (kbd "2") 'winum-select-window-2)
+    (define-key map (kbd "3") 'winum-select-window-3)
+    (define-key map (kbd "4") 'winum-select-window-4)
+    (define-key map (kbd "5") 'winum-select-window-5)
+    (define-key map (kbd "6") 'winum-select-window-6)
+    (define-key map (kbd "7") 'winum-select-window-7)
+    (define-key map (kbd "8") 'winum-select-window-8)
+    (define-key map (kbd "9") 'winum-select-window-9)
+    map)
+  "Keymap to be used under the prefix provided by `winum-keymap-prefix'.")
+
+(defvar winum-keymap (let ((map (make-sparse-keymap)))
+                       (define-key map (kbd "C-x w") winum-base-map)
+                       map)
   "Keymap used for `winum-mode'.")
 
 ;; Internal variables ----------------------------------------------------------
@@ -281,7 +278,7 @@ There are several ways to provide the number:
   (interactive "P")
   (let* ((n (cond
              ((integerp arg) arg)
-             ((eq arg '-) 0) ; negative-argument
+             ((eq arg '-) 0) ; the negative argument
              (arg (winum-get-number))
              ((called-interactively-p 'any)
               (let ((user-input-str (read-from-minibuffer "Window: ")))
@@ -300,6 +297,19 @@ There are several ways to provide the number:
       (error "No window numbered %d" n))))
 
 ;; Public API ------------------------------------------------------------------
+
+;;;###autoload
+(defun winum-set-keymap-prefix (prefix)
+  "Set key bindings prefix for `winum-keymap' based on `winum-base-map'.
+This function overrides the value of `winum-keymap', so you
+should call it before customization of `winum-keymap' and/or
+after customization of `winum-base-map'.
+PREFIX must be a key sequence, like the ones returned by `kbd'."
+  (setq winum-keymap (when prefix (let ((map (make-sparse-keymap)))
+                                    (define-key map prefix winum-base-map)
+                                    map)))
+  (setcdr (assoc 'winum-mode minor-mode-map-alist)
+          winum-keymap))
 
 ;;;###autoload
 (defun winum-get-window-by-number (n)
