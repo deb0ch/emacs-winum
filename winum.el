@@ -314,14 +314,8 @@ PREFIX must be a key sequence, like the ones returned by `kbd'."
 ;;;###autoload
 (defun winum-get-window-by-number (n)
   "Return window numbered N if exists, nil otherwise."
-  (let ((windows (if (eq winum-scope 'frame-local)
-                     (car (gethash (selected-frame) winum--frames-table))
-                   winum--window-vector))
-        window)
-    (if (and (>= n 0) (< n (1+ winum--window-count))
-             (setq window (aref windows n)))
-        window
-      nil)))
+  (when (>= n 0) (< n (1+ winum--window-count))
+        (aref (winum--get-window-vector) n)))
 
 ;;;###autoload
 (defun winum-get-number-string (&optional window)
@@ -339,9 +333,7 @@ WINDOW: if specified, the window of which we want to know the number.
         If not specified, the number of the currently selected window is
         returned."
   (let ((w (or window (selected-window))))
-    (if (eq winum-scope 'frame-local)
-        (gethash w (cdr (gethash (selected-frame) winum--frames-table)))
-      (gethash w winum--numbers-table))))
+    (gethash w (winum--get-numbers-table))))
 
 ;; Internal functions ----------------------------------------------------------
 
