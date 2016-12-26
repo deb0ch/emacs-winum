@@ -39,8 +39,6 @@
 ;;
 ;;; Code:
 ;;
-;; FIXME: Error during redisplay: (eval (winum-get-number-string)) signaled
-;;        (wrong-type-argument numberp nil) when opening a helm buffer.
 ;; FIXME: when `winum-scope' is changed from frame-local to non-local in
 ;;        customize, the mode-line is messed up until next `winum-update'.
 ;; FIXME: The mode-line's window number is not always up to date in all frames.
@@ -323,7 +321,8 @@ PREFIX must be a key sequence, like the ones returned by `kbd'."
 WINDOW: if specified, the window of which we want to know the number.
         If not specified, the number of the currently selected window is
         returned."
-  (let ((s (int-to-string (winum-get-number window))))
+  (let* ((n (winum-get-number window))
+         (s (when (numberp n) (int-to-string n))))
     (propertize s 'face 'winum-face)))
 
 ;;;###autoload
