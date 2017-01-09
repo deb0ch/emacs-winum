@@ -312,7 +312,7 @@ PREFIX must be a key sequence, like the ones returned by `kbd'."
 ;;;###autoload
 (defun winum-get-window-by-number (n)
   "Return window numbered N if exists, nil otherwise."
-  (when (>= n 0) (< n (1+ winum--window-count))
+  (when (and (>= n 0) (< n (1+ winum--window-count)))
         (aref (winum--get-window-vector) n)))
 
 ;;;###autoload
