@@ -97,7 +97,9 @@ Example: always assign *Calculator* the number 9 and *NeoTree* the number 0:
 (defcustom winum-auto-setup-mode-line t
   "When nil, `winum-mode' will not display window numbers in the mode-line.
 You might want this to be nil if you use a package that already manages window
-numbers in the mode-line.")
+numbers in the mode-line."
+  :group 'winum
+  :type  'boolean)
 
 (defcustom winum-mode-line-position 1
   "The position in the mode-line `winum-mode' displays the number."
