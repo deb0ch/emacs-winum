@@ -139,9 +139,7 @@ If you prefer no to use a prefix and have even shorter bindings, you can also
 override =winum-keymap= in the minor mode bindings table:
 
 #+BEGIN_SRC emacs-lisp
-  (require 'winum)
-
-  (setcdr (assoc 'winum-mode minor-mode-map-alist)
+  (setq winum-keymap
       (let ((map (make-sparse-keymap)))
         (define-key map (kbd "C-`") 'winum-select-window-by-number)
         (define-key map (kbd "C-²") 'winum-select-window-by-number)
@@ -156,8 +154,12 @@ override =winum-keymap= in the minor mode bindings table:
         (define-key map (kbd "M-8") 'winum-select-window-8)
         map))
 
+  (require 'winum)
+
   (winum-mode)
 #+END_SRC
+
+Note that it is important to set =winum-keymap= /before/ the =require=.
 
 You can also use the more conventional =define-key= on =winum-keymap=:
 
@@ -249,9 +251,7 @@ Here is an example that you could put in your =.emacs=, which includes all
 available winum options.
 
 #+BEGIN_SRC emacs-lisp
-  (require 'winum)
-
-  (setcdr (assoc 'winum-mode minor-mode-map-alist)
+  (setq winum-keymap
       (let ((map (make-sparse-keymap)))
         (define-key map (kbd "C-`") 'winum-select-window-by-number)
         (define-key map (kbd "C-²") 'winum-select-window-by-number)
@@ -265,6 +265,8 @@ available winum options.
         (define-key map (kbd "M-7") 'winum-select-window-7)
         (define-key map (kbd "M-8") 'winum-select-window-8)
         map))
+
+  (require 'winum)
 
   (defun my-winum-assign-func ()
     (cond
