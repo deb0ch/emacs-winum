@@ -290,17 +290,25 @@ available winum options.
 
 * Future developments
 - send buffer to numbered window
+
   Send current window's buffer to window N. With prefix argument focus will
   follow.
 
 - swap buffer with numbered window
+
   Same as previous, but will swap buffers instead of just sending them.
 
 - Evilify
+
   Adapt the package to the famous `evil-mode` and use a leader key.
 
 - Override native =other-window= (~C-x o~) to use window numbers
 
 - Autocomplete read-from-minibuffer
+
+- Add =winum-format= customize variable
+
+  Format string for displaying the window number in the mode-line. Default to
+  " %n " to get a space on each side of the window number.
 
 - Things that you have thought of and I haven't :smile_cat:
