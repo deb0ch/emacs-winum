@@ -2,7 +2,7 @@
 
 [[https://github.com/syl20bnr/spacemacs][file:https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg]] [[https://melpa.org/#/winum][file:https://melpa.org/packages/winum-badge.svg]]
 
-* Contents :TOC:
+* Contents :TOC:noexport:
  - [[#introduction][Introduction]]
  - [[#whats-changed-since-window-numbering][What's changed since window-numbering]]
  - [[#installation][Installation]]
