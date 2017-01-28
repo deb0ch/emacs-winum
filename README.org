@@ -73,13 +73,13 @@ your Emacs configuration:
 
 #+BEGIN_SRC shell
   cd /path/to/install/folder
-  git clone https://github.com/deb0ch/winum.el
+  git clone https://github.com/deb0ch/emacs-winum
 #+END_SRC
 
 - Add the following to your Emacs configuration:
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'load-path "/path/to/install/folder/winum.el/")
+  (add-to-list 'load-path "/path/to/install/folder/emacs-winum/")
 
   (require 'winum)
 
