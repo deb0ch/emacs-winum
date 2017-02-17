@@ -324,7 +324,9 @@ WINDOW: if specified, the window of which we want to know the number.
         If not specified, the number of the currently selected window is
         returned."
   (let* ((n (winum-get-number window))
-         (s (when (numberp n) (int-to-string n))))
+         (s (if (numberp n)
+                (int-to-string n)
+              "")))
     (propertize s 'face 'winum-face)))
 
 ;;;###autoload
