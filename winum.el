@@ -129,6 +129,17 @@ numbers in the mode-line."
     (define-key map (kbd "7") 'winum-select-window-7)
     (define-key map (kbd "8") 'winum-select-window-8)
     (define-key map (kbd "9") 'winum-select-window-9)
+    (define-key map (kbd "b `") 'winum-move-buffer-to-window-by-number)
+    (define-key map (kbd "b ²") 'winum-move-buffer-to-window-by-number)
+    (define-key map (kbd "b 1") 'winum-move-buffer-to-window-1)
+    (define-key map (kbd "b 2") 'winum-move-buffer-to-window-2)
+    (define-key map (kbd "b 3") 'winum-move-buffer-to-window-3)
+    (define-key map (kbd "b 4") 'winum-move-buffer-to-window-4)
+    (define-key map (kbd "b 5") 'winum-move-buffer-to-window-5)
+    (define-key map (kbd "b 6") 'winum-move-buffer-to-window-6)
+    (define-key map (kbd "b 7") 'winum-move-buffer-to-window-7)
+    (define-key map (kbd "b 8") 'winum-move-buffer-to-window-8)
+    (define-key map (kbd "b 9") 'winum-move-buffer-to-window-9)
     map)
   "Keymap to be used under the prefix provided by `winum-keymap-prefix'.")
 
@@ -280,11 +291,7 @@ There are several ways to provide the number:
              ((integerp arg) arg)
              ((eq arg '-) 0) ; the negative argument
              (arg (winum-get-number))
-             ((called-interactively-p 'any)
-              (let ((user-input-str (read-from-minibuffer "Window: ")))
-                (if (not (string-match-p "[+-]?[0-9]+\.*" user-input-str))
-                    (winum-get-number)
-                  (string-to-number user-input-str))))
+             ((called-interactively-p 'any) (winum--prompt-window-number))
              (t (winum-get-number))))
          (w (winum-get-window-by-number (abs n)))
          (delete (and arg
@@ -295,6 +302,98 @@ There are several ways to provide the number:
             (delete-window w)
           (winum--switch-to-window w))
       (error "No window numbered %d" n))))
+
+(defun winum-move-buffer-to-window-1 (&optional arg)
+  "Move buffer to the window with number 1.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-move-buffer-to-window-by-number -1)
+    (winum-move-buffer-to-window-by-number 1)))
+
+(defun winum-move-buffer-to-window-2 (&optional arg)
+  "Move buffer to the window with number 2.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-move-buffer-to-window-by-number -2)
+    (winum-move-buffer-to-window-by-number 2)))
+
+(defun winum-move-buffer-to-window-3 (&optional arg)
+  "Move buffer to the window with number 3.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-move-buffer-to-window-by-number -3)
+    (winum-move-buffer-to-window-by-number 3)))
+
+(defun winum-move-buffer-to-window-4 (&optional arg)
+  "Move buffer to the window with number 4.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-move-buffer-to-window-by-number -4)
+    (winum-move-buffer-to-window-by-number 4)))
+
+(defun winum-move-buffer-to-window-5 (&optional arg)
+  "Move buffer to the window with number 5.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-move-buffer-to-window-by-number -5)
+    (winum-move-buffer-to-window-by-number 5)))
+
+(defun winum-move-buffer-to-window-6 (&optional arg)
+  "Move buffer to the window with number 6.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-move-buffer-to-window-by-number -6)
+    (winum-move-buffer-to-window-by-number 6)))
+
+(defun winum-move-buffer-to-window-7 (&optional arg)
+  "Move buffer to the window with number 7.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-move-buffer-to-window-by-number -7)
+    (winum-move-buffer-to-window-by-number 7)))
+
+(defun winum-move-buffer-to-window-8 (&optional arg)
+  "Move buffer to the window with number 8.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-move-buffer-to-window-by-number -8)
+    (winum-move-buffer-to-window-by-number 8)))
+
+(defun winum-move-buffer-to-window-9 (&optional arg)
+  "Move buffer to the window with number 9.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-move-buffer-to-window-by-number -9)
+    (winum-move-buffer-to-window-by-number 9)))
+
+(defun winum-move-buffer-to-window-by-number (&optional arg)
+  "Move a buffer to a window which number is specified by ARG.
+A negative ARG makes the focus follow the buffer."
+  (interactive "P")
+  (let* ((n (cond
+             ((integerp arg) arg)
+             ((called-interactively-p 'any) (winum--prompt-window-number))
+             (t (winum-get-number))))
+         (follow-focus (or (not (integerp arg))
+                           (> 0 n)))
+         (b (current-buffer))
+         (w1 (selected-window))
+         (w2 (winum-get-window-by-number (abs n))))
+    (unless (eq w1 w2)
+      (set-window-buffer w2 b)
+      (switch-to-prev-buffer)
+      (unrecord-window-buffer w1 b))
+    (when follow-focus
+      (select-window (winum-get-window-by-number (abs n))))))
 
 ;; Public API ------------------------------------------------------------------
 
@@ -519,6 +618,13 @@ using the `winum-assign-func', or using `winum-auto-assign-0-to-minibuffer'."
     (if (window-live-p window)
         (select-window window)
       (error "Got a dead window %S" window))))
+
+(defun winum--prompt-window-number ()
+  "Prompt user for a window number using `read-from-minibuffer'"
+  (let ((user-input-str (read-from-minibuffer "Window: ")))
+    (if (not (string-match-p "[+-]?[0-9]+\.*" user-input-str))
+        (winum-get-number)
+      (string-to-number user-input-str))))
 
 (push "^No window numbered .$"     debug-ignored-errors)
 (push "^Got a dead window .$"      debug-ignored-errors)
