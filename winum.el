@@ -140,6 +140,17 @@ numbers in the mode-line."
     (define-key map (kbd "b 7") 'winum-move-buffer-to-window-7)
     (define-key map (kbd "b 8") 'winum-move-buffer-to-window-8)
     (define-key map (kbd "b 9") 'winum-move-buffer-to-window-9)
+    (define-key map (kbd "s `") 'winum-swap-buffer-with-window-by-number)
+    (define-key map (kbd "s ²") 'winum-swap-buffer-with-window-by-number)
+    (define-key map (kbd "s 1") 'winum-swap-buffer-with-window-1)
+    (define-key map (kbd "s 2") 'winum-swap-buffer-with-window-2)
+    (define-key map (kbd "s 3") 'winum-swap-buffer-with-window-3)
+    (define-key map (kbd "s 4") 'winum-swap-buffer-with-window-4)
+    (define-key map (kbd "s 5") 'winum-swap-buffer-with-window-5)
+    (define-key map (kbd "s 6") 'winum-swap-buffer-with-window-6)
+    (define-key map (kbd "s 7") 'winum-swap-buffer-with-window-7)
+    (define-key map (kbd "s 8") 'winum-swap-buffer-with-window-8)
+    (define-key map (kbd "s 9") 'winum-swap-buffer-with-window-9)
     map)
   "Keymap to be used under the prefix provided by `winum-keymap-prefix'.")
 
@@ -394,6 +405,101 @@ A negative ARG makes the focus follow the buffer."
       (unrecord-window-buffer w1 b))
     (when follow-focus
       (select-window (winum-get-window-by-number (abs n))))))
+
+(defun winum-swap-buffer-with-window-1 (&optional arg)
+  "Swap buffer with the window with number 1.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-swap-buffers-with-window-by-number -1)
+    (winum-swap-buffers-with-window-by-number 1)))
+
+(defun winum-swap-buffer-with-window-2 (&optional arg)
+  "Swap buffer with the window with number 2.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-swap-buffers-with-window-by-number -2)
+    (winum-swap-buffers-with-window-by-number 2)))
+
+(defun winum-swap-buffer-with-window-3 (&optional arg)
+  "Swap buffer with the window with number 3.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-swap-buffers-with-window-by-number -3)
+    (winum-swap-buffers-with-window-by-number 3)))
+
+(defun winum-swap-buffer-with-window-4 (&optional arg)
+  "Swap buffer with the window with number 4.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-swap-buffers-with-window-by-number -4)
+    (winum-swap-buffers-with-window-by-number 4)))
+
+(defun winum-swap-buffer-with-window-5 (&optional arg)
+  "Swap buffer with the window with number 5.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-swap-buffers-with-window-by-number -5)
+    (winum-swap-buffers-with-window-by-number 5)))
+
+(defun winum-swap-buffer-with-window-6 (&optional arg)
+  "Swap buffer with the window with number 6.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-swap-buffers-with-window-by-number -6)
+    (winum-swap-buffers-with-window-by-number 6)))
+
+(defun winum-swap-buffer-with-window-7 (&optional arg)
+  "Swap buffer with the window with number 7.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-swap-buffers-with-window-by-number -7)
+    (winum-swap-buffers-with-window-by-number 7)))
+
+(defun winum-swap-buffer-with-window-8 (&optional arg)
+  "Swap buffer with the window with number 8.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-swap-buffers-with-window-by-number -8)
+    (winum-swap-buffers-with-window-by-number 8)))
+
+(defun winum-swap-buffer-with-window-9 (&optional arg)
+  "Swap buffer with the window with number 9.
+A prefix argument makes the input focus follow the buffer."
+  (interactive "P")
+  (if arg
+      (winum-swap-buffers-with-window-by-number -9)
+    (winum-swap-buffers-with-window-by-number 9)))
+
+;; TODO if only 2 existing windows, swap them right away
+(defun winum-swap-buffers-with-window-by-number (&optional arg)
+  "Swaps visible buffers between active window and window specified by ARG.
+A negative ARG makes the buffer's new window the selected window."
+  (interactive "P")
+  (let* ((n (cond
+             ((integerp arg) arg)
+             ((called-interactively-p 'any) (winum--prompt-window-number))
+             (t (winum-get-number))))
+         (follow-focus (or (not (integerp arg))
+                           (> 0 n)))
+         (w1 (selected-window))
+         (b1 (current-buffer))
+         (w2 (winum-get-window-by-number (abs n)))
+         (b2 (window-buffer w2)))
+    (unless (eq w1 w2)
+      (set-window-buffer w1 b2)
+      (set-window-buffer w2 b1)
+      (unrecord-window-buffer w1 b1)
+      (unrecord-window-buffer w2 b2))
+    (when follow-focus
+      (winum-select-window-by-number (abs n)))))
 
 ;; Public API ------------------------------------------------------------------
 
