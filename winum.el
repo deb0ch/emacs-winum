@@ -314,8 +314,9 @@ PREFIX must be a key sequence, like the ones returned by `kbd'."
 ;;;###autoload
 (defun winum-get-window-by-number (n)
   "Return window numbered N if exists, nil otherwise."
-  (when (and (>= n 0) (< n (1+ winum--window-count)))
-        (aref (winum--get-window-vector) n)))
+  (let ((window-vector (winum--get-window-vector)))
+    (when (and (>= n 0) (< n (length window-vector)))
+      (aref window-vector n))))
 
 ;;;###autoload
 (defun winum-get-number-string (&optional window)
@@ -339,6 +340,18 @@ WINDOW: if specified, the window of which we want to know the number.
     (gethash w (winum--get-numbers-table))))
 
 ;; Internal functions ----------------------------------------------------------
+
+(defsubst winum--set-window-vector (window-vector &optional clear-numbers-table?)
+  "Use WINDOW-VECTOR according to the current `winum-scope'.
+Clear saved window numbers when CLEAR-NUMBERS-TABLE is t."
+  (if (eq winum-scope 'frame-local)
+      (puthash (selected-frame)
+               (cons window-vector
+                     (make-hash-table :size winum--window-count))
+               winum--frames-table)
+    (setq winum--window-vector window-vector)
+    (when clear-numbers-table?
+      (clrhash winum--numbers-table))))
 
 (defun winum--init ()
   "Initialize winum-mode."
@@ -393,13 +406,7 @@ POSITION: position in the mode-line."
   (let ((windows (winum--window-list)))
     (setq winum--window-count (length windows)
           winum--remaining (winum--available-numbers))
-    (if (eq winum-scope 'frame-local)
-        (puthash (selected-frame)
-                 (cons (make-vector (1+ winum--window-count) nil)
-                       (make-hash-table :size winum--window-count))
-                 winum--frames-table)
-      (setq winum--window-vector (make-vector (1+ winum--window-count) nil))
-      (clrhash winum--numbers-table))
+    (winum--set-window-vector (make-vector (1+ winum--window-count) nil) t)
     (when winum-assign-func
       (mapc (lambda (w)
               (with-selected-window w
@@ -421,14 +428,23 @@ If NUMBER is not specified, determine it first based on
 `winum--remaining'.
 Returns the assigned number, or nil on error."
   (if number
-      (if (aref (winum--get-window-vector) number)
-          (progn (message "Number %s already assigned to %s, can't assign to %s"
-                          number (aref winum--window-vector number) window)
-                 nil)
-        (setf (aref (winum--get-window-vector) number) window)
-        (puthash window number (winum--get-numbers-table))
-        (setq winum--remaining (delq number winum--remaining))
-        number)
+      (let* ((window-vector (winum--get-window-vector))
+             (window-vector-length (length window-vector)))
+        ;; By default the size of the window vector is equal to the number of visible windows.
+        ;; However it is possible to use `winum-assign-func' to always reserve a number outside
+        ;; that range (e.g. always to assign #10 to a specific window). If this happens the
+        ;; window-vector must be expanded accordingly.
+        (when (> number window-vector-length)
+          (winum--set-window-vector (vconcat window-vector
+                                             (make-vector (1+ (- number window-vector-length)) nil))))
+        (if (aref (winum--get-window-vector) number)
+            (progn (message "Number %s already assigned to %s, can't assign to %s"
+                            number (aref winum--window-vector number) window)
+                   nil)
+          (setf (aref (winum--get-window-vector) number) window)
+          (puthash window number (winum--get-numbers-table))
+          (setq winum--remaining (delq number winum--remaining))
+          number))
     ;; else determine number and assign
     (when winum--remaining
       (unless (gethash window (winum--get-numbers-table))
