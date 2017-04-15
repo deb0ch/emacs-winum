@@ -438,12 +438,7 @@ Returns the assigned number, or nil on error."
 (defun winum--window-list ()
   "Return a list of interesting windows."
   (cl-remove-if
-   (lambda (w)
-     (let ((f (window-frame w)))
-       (or (not (and (frame-live-p f)
-                     (frame-visible-p f)))
-           (string= "initial_terminal" (terminal-name f))
-           (member (buffer-name (window-buffer w)) winum-ignored-buffers))))
+   #'winum--ignore-window-p
    (cl-case winum-scope
      (global
       (cl-mapcan 'winum--list-windows-in-frame
@@ -460,14 +455,21 @@ Returns the assigned number, or nil on error."
      (t
       (error "Invalid `winum-scope': %S" winum-scope)))))
 
+(defun winum--ignore-window-p (window)
+  "Non-nil if WINDOW should be ignored for numbering."
+  (let ((f (window-frame window)))
+    (or (not (and (frame-live-p f)
+                  (frame-visible-p f)))
+        (string= "initial_terminal" (terminal-name f))
+        (member (buffer-name (window-buffer window)) winum-ignored-buffers))))
+
 (defun winum--list-windows-in-frame (&optional f)
   "List windows in frame F using natural Emacs ordering."
   (window-list f 0 (frame-first-window f)))
 
 (defun winum--get-window-vector ()
   "Return the window vector used to get a window given a number.
-This vector is not stored the same way depending on the value of
-`winum-scope'."
+This vector is not stored the same way depending on the value of `winum-scope'."
   (if (eq winum-scope 'frame-local)
       (car (gethash (selected-frame) winum--frames-table))
     winum--window-vector))
