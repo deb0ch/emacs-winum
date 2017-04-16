@@ -394,6 +394,7 @@ POSITION: position in the mode-line."
     (setq winum--window-count (length windows)
           winum--remaining (winum--available-numbers))
     (winum--set-window-vector (make-vector (1+ winum--window-count) nil))
+    (clrhash (winum--get-numbers-table))
     (when winum-assign-func
       (mapc (lambda (w)
               (with-selected-window w
@@ -482,8 +483,7 @@ windows, however a higher number can be reserved by the user-defined
                (cons window-vector
                      (make-hash-table :size winum--window-count))
                winum--frames-table)
-    (setq winum--window-vector window-vector)
-    (clrhash winum--numbers-table)))
+    (setq winum--window-vector window-vector)))
 
 (defun winum--get-window-vector ()
   "Return the window vector used to get a window given a number.
