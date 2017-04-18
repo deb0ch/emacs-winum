@@ -421,7 +421,7 @@ Returns the assigned number, or nil on error."
         (if (aref (winum--get-window-vector) number)
             (progn
               (message "Number %s already assigned to %s, can't assign to %s"
-                       number (aref winum--window-vector number) window)
+                       number (aref (winum--get-window-vector) number) window)
               nil)
           (setf (aref (winum--get-window-vector) number) window)
           (puthash window number (winum--get-numbers-table))
