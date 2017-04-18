@@ -406,7 +406,9 @@ POSITION: position in the mode-line."
   (let ((windows (winum--window-list)))
     (setq winum--window-count (length windows)
           winum--remaining (winum--available-numbers))
-    (winum--set-window-vector (make-vector (1+ winum--window-count) nil) t)
+    (winum--set-window-vector (make-vector (1+ winum--window-count) nil))
+    (clrhash (winum--get-numbers-table))
+
     (when winum-assign-func
       (mapc (lambda (w)
               (with-selected-window w
@@ -424,23 +426,16 @@ POSITION: position in the mode-line."
 
 (defun winum--assign (window &optional number)
   "Assign to window WINDOW the number NUMBER.
-If NUMBER is not specified, determine it first based on
-`winum--remaining'.
+If NUMBER is not specified, determine it first based on `winum--remaining'.
 Returns the assigned number, or nil on error."
   (if number
-      (let* ((window-vector (winum--get-window-vector))
-             (window-vector-length (length window-vector)))
-        ;; By default the size of the window vector is equal to the number of visible windows.
-        ;; However it is possible to use `winum-assign-func' to always reserve a number outside
-        ;; that range (e.g. always to assign #10 to a specific window). If this happens the
-        ;; window-vector must be expanded accordingly.
-        (when (> number window-vector-length)
-          (winum--set-window-vector (vconcat window-vector
-                                             (make-vector (1+ (- number window-vector-length)) nil))))
+      (progn
+        (winum--maybe-expand-window-vector number)
         (if (aref (winum--get-window-vector) number)
-            (progn (message "Number %s already assigned to %s, can't assign to %s"
-                            number (aref winum--window-vector number) window)
-                   nil)
+            (progn
+              (message "Number %s already assigned to %s, can't assign to %s"
+                       number (aref (winum--get-window-vector) number) window)
+              nil)
           (setf (aref (winum--get-window-vector) number) window)
           (puthash window number (winum--get-numbers-table))
           (setq winum--remaining (delq number winum--remaining))
@@ -451,15 +446,22 @@ Returns the assigned number, or nil on error."
         (let ((number (car winum--remaining)))
           (winum--assign window number))))))
 
+(defun winum--maybe-expand-window-vector (number)
+  "Expand `winum--window-vector' if NUMBER is bigger than its size.
+The size of `winum--window-vector' is normally based on the number of live
+windows, however a higher number can be reserved by the user-defined
+`winum-assign-func'."
+  (let* ((window-vector (winum--get-window-vector))
+         (window-vector-length (length window-vector)))
+    (when (> number window-vector-length)
+      (winum--set-window-vector
+       (vconcat window-vector
+                (make-vector (1+ (- number window-vector-length)) nil))))))
+
 (defun winum--window-list ()
   "Return a list of interesting windows."
   (cl-remove-if
-   (lambda (w)
-     (let ((f (window-frame w)))
-       (or (not (and (frame-live-p f)
-                     (frame-visible-p f)))
-           (string= "initial_terminal" (terminal-name f))
-           (member (buffer-name (window-buffer w)) winum-ignored-buffers))))
+   #'winum--ignore-window-p
    (cl-case winum-scope
      (global
       (cl-mapcan 'winum--list-windows-in-frame
@@ -476,14 +478,30 @@ Returns the assigned number, or nil on error."
      (t
       (error "Invalid `winum-scope': %S" winum-scope)))))
 
+(defun winum--ignore-window-p (window)
+  "Non-nil if WINDOW should be ignored for numbering."
+  (let ((f (window-frame window)))
+    (or (not (and (frame-live-p f)
+                  (frame-visible-p f)))
+        (string= "initial_terminal" (terminal-name f))
+        (member (buffer-name (window-buffer window)) winum-ignored-buffers))))
+
 (defun winum--list-windows-in-frame (&optional f)
   "List windows in frame F using natural Emacs ordering."
   (window-list f 0 (frame-first-window f)))
 
+(defun winum--set-window-vector (window-vector)
+  "Set WINDOW-VECTOR according to the current `winum-scope'."
+  (if (eq winum-scope 'frame-local)
+      (puthash (selected-frame)
+               (cons window-vector
+                     (make-hash-table :size winum--window-count))
+               winum--frames-table)
+    (setq winum--window-vector window-vector)))
+
 (defun winum--get-window-vector ()
   "Return the window vector used to get a window given a number.
-This vector is not stored the same way depending on the value of
-`winum-scope'."
+This vector is not stored the same way depending on the value of `winum-scope'."
   (if (eq winum-scope 'frame-local)
       (car (gethash (selected-frame) winum--frames-table))
     winum--window-vector))
