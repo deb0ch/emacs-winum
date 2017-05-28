@@ -196,29 +196,40 @@ Several options are available through Emacs' Customize interface under
 
   Default: =t=
 
-- =winum-assign-func=
+- =winum-assign-functions=
 
-  Function called for each window by =winum-mode=. This is called before
-  automatic assignment begins. The function should return a number to have it
-  assigned to the current-window, =nil= otherwise.
+  List of functions called for each window by `winum-mode'.
 
-  This function along with `winum-auto-assign-0-to-minibuffer' are the only ways
-  to have 0 assigned to a window.
+  These functions allow for deterministic assignment of numbers to windows. Each
+  function is called for every window. A function should return the number to be
+  assigned to a window or nil. The /first/ function to output a number for
+  a given window will determine this window's number (if more than 1 function
+  assigns a number a warning will be logged in the messages buffer).
+
+  If the list is empty or if every function returns nil for a given window winum
+  will proceed to automatic number assignment.
+
+  Since this list is meant to allow custom window assignment for /mutiple/
+  packages at once it should never be directly set, only added to and removed
+  from.
+
+  These functions, along with ~winum-auto-assign-0-to-minibuffer~, are the only
+  way to have 0 assigned to a window.
 
   Example: always assign *Calculator* the number 9 and *NeoTree* the number 0:
 
-#+BEGIN_SRC emacs-lisp
-  (defun my-winum-assign-func ()
-    (cond
-     ((equal (buffer-name) "*Calculator*")
-      9)
-     ((string-match-p (buffer-name) ".*\\*NeoTree\\*.*")
-      0)
-     (t
-      nil)))
+  #+BEGIN_SRC emacs-lisp
+    (defun winum-assign-9-to-calculator-8-to-flycheck-errors ()
+      (cond
+       ((equal (buffer-name)"*Calculator*") 9)
+       ((equal (buffer-name)"*Flycheck errors*") 8)))
 
-  (setq winum-assign-func 'my-winum-assign-func)
-#+END_SRC
+    (defun winum-assign-0-to-neotree-and ()
+      (when (string-match-p (buffer-name) ".*\\*NeoTree\\*.*") 10))
+
+    (add-to-list 'winum-assign-functions #'winum-assign-9-to-calculator-8-to-flycheck-errors)
+    (add-to-list 'winum-assign-functions #'winum-assign-0-to-neotree)
+  #+END_SRC
 
   Default: =nil=
 
@@ -268,14 +279,16 @@ available winum options.
 
   (require 'winum)
 
-  (defun my-winum-assign-func ()
+  (defun winum-assign-9-to-calculator-8-to-flycheck-errors ()
     (cond
-     ((equal (buffer-name) "*Calculator*")
-      9)
-     ((string-match-p (buffer-name) ".*\\*NeoTree\\*.*")
-      0)
-     (t
-      nil)))
+     ((equal (buffer-name) "*Calculator*") 9)
+     ((equal (buffer-name) "*Flycheck errors*") 8)))
+
+  (defun winum-assign-0-to-neotree-and ()
+    (when (string-match-p (buffer-name) ".*\\*NeoTree\\*.*") 10))
+
+  (add-to-list 'winum-assign-functions #'winum-assign-9-to-calculator-8-to-flycheck-errors)
+  (add-to-list 'winum-assign-functions #'winum-assign-0-to-neotree)
 
   (set-face-attribute 'winum-face nil :weight 'bold)
 
