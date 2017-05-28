@@ -22,7 +22,7 @@
 ;; URL: http://github.com/deb0ch/winum.el
 ;; Created: 2016
 ;; Compatibility: GNU Emacs 24.x
-;; Package-requires: ((cl-lib "0.5"))
+;; Package-requires: ((cl-lib "0.5") (dash "2.13.0"))
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -43,6 +43,7 @@
 ;;
 
 (eval-when-compile (require 'cl-lib))
+(require 'dash)
 
 ;; Configuration variables -----------------------------------------------------
 
@@ -91,6 +92,44 @@ Example: always assign *Calculator* the number 9 and *NeoTree* the number 0:
   (setq winum-assign-func 'my-winum-assign-func)"
   :group 'winum
   :type  'function)
+
+(make-obsolete-variable 'winum-assign-func 'winum-assign-functions "28.05.2017")
+
+(defcustom winum-assign-functions nil
+  "List of functions called for each window by `winum-mode'.
+
+These functions allow for deterministic assignment of numbers to windows. Each
+function is called for every window. A function should return the number to be
+assigned to a window or nil. The *first* function to output a number for
+a given window will determine this window's number.
+
+If the list is empty or if every functions returns nil for a given window winum
+will proceed to automatic number assignment.
+
+Since this list is meant to allow custom window assignment for *mutiple*
+packages at once it should never be directly set, only added to and removed
+from.
+
+These functions, along with `winum-auto-assign-0-to-minibuffer', are the only
+way to have 0 assigned to a window.
+
+Example: always assign *Calculator* the number 9, *Flycheck-errors* the number 8
+and *NeoTree* the number 0:
+
+  (defun winum-assign-9-to-calculator-8-to-flycheck-errors ()
+    (cond
+     ((equal (buffer-name) \"*Calculator*\") 9)
+     ((equal (buffer-name) \"*Flycheck errors*\") 8)))
+
+  (defun winum-assign-0-to-neotree ()
+    (when (string-match-p (buffer-name) \".*\\*NeoTree\\*.*\") 10))
+
+  (add-to-list
+    'winum-assign-functions #'winum-assign-9-to-calculator-8-to-flycheck-errors)
+  (add-to-list
+    'winum-assign-functions #'winum-assign-0-to-neotree)"
+  :group 'winum
+  :type  'list)
 
 (defcustom winum-auto-setup-mode-line t
   "When nil, `winum-mode' will not display window numbers in the mode-line.
@@ -398,20 +437,31 @@ POSITION: position in the mode-line."
           winum--remaining (winum--available-numbers))
     (winum--set-window-vector (make-vector (1+ winum--window-count) nil))
     (clrhash (winum--get-numbers-table))
-    (when winum-assign-func
-      (mapc (lambda (w)
-              (with-selected-window w
-                (with-current-buffer (window-buffer w)
-                  (let ((num (funcall winum-assign-func)))
-                    (when num
-                      (winum--assign w num))))))
-            windows))
+    (when winum-assign-functions
+      (-each windows #'winum--try-to-find-custom-number))
     (when (and winum-auto-assign-0-to-minibuffer
                (active-minibuffer-window)
                (not (winum-get-window-by-number 0)))
       (winum--assign (active-minibuffer-window) 0))
     (dolist (w windows)
       (winum--assign w))))
+
+(defun winum--try-to-find-custom-number (window)
+  "Try to find and assign a custom number for WINDOW.
+Do so by trying every function in `winum-assign-functions' and assign the
+*first* non nil integer.
+When multiple functions assign a number to a window log a warning and use the
+first number anyway."
+  (with-selected-window window
+    (with-current-buffer (window-buffer window)
+      (let* ((nums (->> winum-assign-functions
+                        (--map (cons it (funcall it)))
+                        (--remove (null (cdr it)))))
+             (num (-> nums (cl-first) (cdr))))
+        (when (> (length nums) 1)
+          (message "Winum conflict - window %s was assigned a number by multiple custom assign functions: '%s'"
+                   window (--map (format "%s -> %s" (car it) (cdr it)) nums)))
+        (when (integerp num) (winum--assign window num))))))
 
 (defun winum--assign (window &optional number)
   "Assign to window WINDOW the number NUMBER.
