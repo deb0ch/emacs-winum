@@ -583,6 +583,13 @@ internal data structures according to the new scope."
     (setq winum--last-used-scope winum-scope)
     (winum--init)))
 
+(defun winum--remove-deleted-frame-from-frames-table (frame)
+  "Remove FRAME from `winum--frames-table' after it was deleted."
+  (when winum--frames-table
+    (remhash frame winum--frames-table)))
+
+(add-hook 'delete-frame-functions #'winum--remove-deleted-frame-from-frames-table)
+
 (push "^No window numbered .$"     debug-ignored-errors)
 (push "^Got a dead window .$"      debug-ignored-errors)
 (push "^Invalid `winum-scope': .$" debug-ignored-errors)
