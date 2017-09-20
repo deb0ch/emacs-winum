@@ -552,9 +552,23 @@ This vector is not stored the same way depending on the value of `winum-scope'."
 This hashtable is not stored the same way depending on the value of
 `winum-scope'"
   (winum--check-for-scope-change)
+  (winum--check-frames-table)
   (if (eq winum-scope 'frame-local)
       (cdr (gethash (selected-frame) winum--frames-table))
     winum--numbers-table))
+
+(defun winum--check-frames-table ()
+  "Make sure `winum--frames-table' exists and is correctly equipped.
+Verifies 2 things (when `winum-scope' is frame local):
+ * When `winum-scope' is frame-local for the first time it may be necessary to
+   instantiate `winum--frames-table'.
+ * A table entry for the current frame must be made when the frame has just
+   been created."
+  (when (eq winum-scope 'frame-local)
+    (unless winum--frames-table
+      (setq winum--frames-table (make-hash-table :size winum--max-frames)))
+    (unless (gethash (selected-frame) winum--frames-table)
+      (winum--update))))
 
 (defun winum--available-numbers ()
   "Return a list of numbers from 1 to `winum--window-count'.
