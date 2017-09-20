@@ -502,9 +502,23 @@ This vector is not stored the same way depending on the value of `winum-scope'."
 This hashtable is not stored the same way depending on the value of
 `winum-scope'"
   (winum--check-for-scope-change)
+  (winum--verify-frames-table)
   (if (eq winum-scope 'frame-local)
       (cdr (gethash (selected-frame) winum--frames-table))
     winum--numbers-table))
+
+(defun winum--verify-frames-table ()
+  "Make sure `winum--frames-table' exists and is correctly equipped.
+Verifies 2 things (when `winum-scope' is frame local):
+ * When `winum-scope' is frame-local for the first time it may be necessary to
+   instantiate `winum--frames-table'.
+ * An table entry for the current frame must be made when the frame has just
+   been created."
+  (when (eq winum-scope 'frame-local)
+    (unless winum--frames-table
+      (setq winum--frames-table (make-hash-table :size winum--max-frames)))
+    (unless (gethash (selected-frame) winum--frames-table)
+      (winum--update))))
 
 (defun winum--available-numbers ()
   "Return a list of numbers from 1 to `winum--window-count'.
@@ -532,6 +546,13 @@ internal data structures according to the new scope."
   (unless (eq winum-scope winum--last-used-scope)
     (setq winum--last-used-scope winum-scope)
     (winum--init)))
+
+(defun winum--remove-deleted-frame-from-frames-table (frame)
+  "Remove FRAME from `winum--frames-table' after it was deleted."
+  (when winum--frames-table
+    (remhash frame winum--frames-table)))
+
+(add-hook 'delete-frame-functions #'winum--remove-deleted-frame-from-frames-table)
 
 (push "^No window numbered .$"     debug-ignored-errors)
 (push "^Got a dead window .$"      debug-ignored-errors)
