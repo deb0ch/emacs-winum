@@ -17,7 +17,7 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;;
 ;; Author: Thomas de Beauchêne <thomas.de.beauchene@gmail.com>
-;; Version: 1.0
+;; Version: 2.0.0
 ;; Keywords: convenience, frames, windows, multi-screen
 ;; URL: http://github.com/deb0ch/winum.el
 ;; Created: 2016
@@ -93,7 +93,7 @@ Example: always assign *Calculator* the number 9 and *NeoTree* the number 0:
   :group 'winum
   :type  'function)
 
-(make-obsolete-variable 'winum-assign-func 'winum-assign-functions "28.05.2017")
+(make-obsolete-variable 'winum-assign-func 'winum-assign-functions "2.0.0")
 
 (defcustom winum-assign-functions nil
   "List of functions called for each window by `winum-mode'.
