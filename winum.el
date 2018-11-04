@@ -408,11 +408,12 @@ WINDOW: if specified, the window of which we want to know the number.
   "Install the window number from `winum-mode' to the mode-line.
 POSITION: position in the mode-line."
   (let ((mode-line (default-value 'mode-line-format))
-        (res))
+        res)
     (dotimes (i (min (or position winum-mode-line-position 1)
                      (length mode-line)))
       (push (pop mode-line) res))
-    (push '(:eval (winum-get-number-string)) res)
+    (unless (equal (car mode-line) '(:eval (winum-get-number-string)))
+      (push '(:eval (winum-get-number-string)) res))
     (while mode-line
       (push (pop mode-line) res))
     (setq-default mode-line-format (nreverse res)))
