@@ -426,12 +426,11 @@ POSITION: position in the mode-line."
 (defun winum--clear-mode-line ()
   "Remove the window number of `winum-mode' from the mode-line."
   (let ((mode-line (default-value 'mode-line-format))
-        (res))
+        res)
     (while mode-line
-      (let ((item (car mode-line)))
+      (let ((item (pop mode-line)))
         (unless (equal item winum--mode-line-segment)
-          (push item res)))
-      (pop mode-line))
+        (push item res))))
     (let ((nres (nreverse res)))
       (setq mode-line-format nres)
       (setq-default mode-line-format nres)))
