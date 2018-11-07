@@ -404,6 +404,8 @@ WINDOW: if specified, the window of which we want to know the number.
   (remove-hook 'window-configuration-change-hook 'winum--update)
   (setq winum--frames-table nil))
 
+(defvar winum--mode-line-segment '(:eval (winum-get-number-string)))
+
 (defun winum--install-mode-line (&optional position)
   "Install the window number from `winum-mode' to the mode-line.
 POSITION: position in the mode-line."
@@ -412,8 +414,8 @@ POSITION: position in the mode-line."
     (dotimes (i (min (or position winum-mode-line-position 1)
                      (length mode-line)))
       (push (pop mode-line) res))
-    (unless (equal (car mode-line) '(:eval (winum-get-number-string)))
-      (push '(:eval (winum-get-number-string)) res))
+    (unless (equal (car mode-line) winum--mode-line-segment)
+      (push winum--mode-line-segment res))
     (while mode-line
       (push (pop mode-line) res))
     (setq-default mode-line-format (nreverse res)))
@@ -425,7 +427,7 @@ POSITION: position in the mode-line."
         (res))
     (while mode-line
       (let ((item (car mode-line)))
-        (unless (equal item '(:eval (winum-get-number-string)))
+        (unless (equal item winum--mode-line-segment)
           (push item res)))
       (pop mode-line))
     (setq-default mode-line-format (nreverse res)))
