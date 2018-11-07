@@ -418,7 +418,9 @@ POSITION: position in the mode-line."
       (push winum--mode-line-segment res))
     (while mode-line
       (push (pop mode-line) res))
-    (setq-default mode-line-format (nreverse res)))
+    (let ((nres (nreverse res)))
+      (setq mode-line-format nres)
+      (setq-default mode-line-format nres)))
   (force-mode-line-update t))
 
 (defun winum--clear-mode-line ()
@@ -430,7 +432,9 @@ POSITION: position in the mode-line."
         (unless (equal item winum--mode-line-segment)
           (push item res)))
       (pop mode-line))
-    (setq-default mode-line-format (nreverse res)))
+    (let ((nres (nreverse res)))
+      (setq mode-line-format nres)
+      (setq-default mode-line-format nres)))
   (force-mode-line-update t))
 
 (defun winum--update ()
