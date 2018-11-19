@@ -17,7 +17,7 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;;
 ;; Author: Thomas de Beauchêne <thomas.de.beauchene@gmail.com>
-;; Version: 2.1.0
+;; Version: 2.2.0
 ;; Keywords: convenience, frames, windows, multi-screen
 ;; URL: http://github.com/deb0ch/winum.el
 ;; Created: 2016
