@@ -143,6 +143,13 @@ numbers in the mode-line."
   :group 'winum
   :type  'integer)
 
+(defcustom winum-format " %s "
+  "Format string defining how the window number looks like in the mode-line.
+This string is passed to the `format' function along with the
+result of `winum-get-number-string'."
+  :group 'winum
+  :type  'string)
+
 (defcustom winum-ignored-buffers '(" *which-key*")
   "List of buffers to ignore when assigning numbers."
   :group 'winum
@@ -207,6 +214,10 @@ To get a window given a number, use the `car' of a value.
 To get a number given a window, use the `cdr' of a value.
 
 Such a structure allows for per-frame bidirectional fast access.")
+
+(defvar winum--mode-line-segment
+  '(:eval (format winum-format (winum-get-number-string)))
+  "What is pushed into `mode-line-format' when setting it up automatically.")
 
 (defvar winum--last-used-scope winum-scope
   "Tracks the last used `winum-scope'.
@@ -403,8 +414,6 @@ WINDOW: if specified, the window of which we want to know the number.
   (remove-hook 'minibuffer-setup-hook 'winum--update)
   (remove-hook 'window-configuration-change-hook 'winum--update)
   (setq winum--frames-table nil))
-
-(defvar winum--mode-line-segment '(:eval (winum-get-number-string)))
 
 (defun winum--install-mode-line (&optional position)
   "Install the window number from `winum-mode' to the mode-line.

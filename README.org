@@ -3,17 +3,19 @@
 [[https://github.com/syl20bnr/spacemacs][file:https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg]] [[https://melpa.org/#/winum][file:https://melpa.org/packages/winum-badge.svg]] [[https://stable.melpa.org/#/winum][file:https://stable.melpa.org/packages/winum-badge.svg]]
 
 * Contents :TOC:noexport:
- - [[#introduction][Introduction]]
- - [[#whats-changed-since-window-numbering][What's changed since window-numbering]]
- - [[#installation][Installation]]
-   - [[#using-melpa][Using Melpa]]
-   - [[#manual-installation][Manual installation]]
- - [[#how-to-use][How to use]]
- - [[#configuration][Configuration]]
-   - [[#keybindings][Keybindings]]
-   - [[#customize-options][Customize options]]
-   - [[#configuration-file-example][Configuration file example]]
- - [[#future-developments][Future developments]]
+- [[#introduction][Introduction]]
+- [[#changelog][Changelog]]
+  - [[#nov-15-2018][Nov. 15 2018]]
+  - [[#initial-release-whats-changed-since-window-numbering][Initial release: what's changed since window-numbering]]
+- [[#installation][Installation]]
+  - [[#using-melpa][Using Melpa]]
+  - [[#manual-installation][Manual installation]]
+- [[#how-to-use][How to use]]
+- [[#configuration][Configuration]]
+  - [[#keybindings][Keybindings]]
+  - [[#customize-options][Customize options]]
+  - [[#configuration-file-example][Configuration file example]]
+- [[#future-developments][Future developments]]
 
 * Introduction
 Window numbers for Emacs: Navigate your windows and frames using numbers !
@@ -25,7 +27,12 @@ from [[https://github.com/abo-abo/ace-window][ace-window]].
 This version brings, among other things, support for number sets across multiple
 frames, giving the user a smoother experience of multi-screen Emacs.
 
-* What's changed since window-numbering
+* Changelog
+** Nov. 15 2018
+- Added customize variable =winum-format=, a format string to configure how the
+  window number appears in the mode-line
+
+** Initial release: what's changed since window-numbering
 This package brings a lot of additions to the old window-numbering:
 
 - Number sets across multiple frames, giving a smoother experience of
@@ -241,6 +248,14 @@ Several options are available through Emacs' Customize interface under
 
   Default: =t=
 
+- =winum-format=
+
+  Format string defining how the window number looks like in the mode-line.
+  This string is passed to the =format= function along with the result of
+  =winum-get-number-string=.
+
+  Default: =" %s "=
+
 - =winum-mode-line-position=
 
   The position in the mode-line =winum-mode= displays the number.
@@ -297,6 +312,7 @@ available winum options.
         winum-auto-assign-0-to-minibuffer t
         winum-assign-func                 'my-winum-assign-func
         winum-auto-setup-mode-line        t
+        winum-format                      " %s "
         winum-mode-line-position          1
         winum-ignored-buffers             '(" *which-key*"))
 
@@ -320,10 +336,5 @@ available winum options.
 - Override native =other-window= (~C-x o~) to use window numbers
 
 - Autocomplete read-from-minibuffer
-
-- Add =winum-format= customize variable
-
-  Format string for displaying the window number in the mode-line. Default to
-  " %n " to get a space on each side of the window number.
 
 - Things that you have thought of and I haven't :smile_cat:
