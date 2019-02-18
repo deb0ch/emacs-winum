@@ -231,7 +231,7 @@ Several options are available through Emacs' Customize interface under
        ((equal (buffer-name) "*Calculator*") 9)
        ((equal (buffer-name) "*Flycheck errors*") 8)))
 
-    (defun winum-assign-0-to-neotree-and ()
+    (defun winum-assign-0-to-neotree ()
       (when (string-match-p (buffer-name) ".*\\*NeoTree\\*.*") 10))
 
     (add-to-list 'winum-assign-functions #'winum-assign-9-to-calculator-8-to-flycheck-errors)
@@ -299,7 +299,7 @@ available winum options.
      ((equal (buffer-name) "*Calculator*") 9)
      ((equal (buffer-name) "*Flycheck errors*") 8)))
 
-  (defun winum-assign-0-to-neotree-and ()
+  (defun winum-assign-0-to-neotree ()
     (when (string-match-p (buffer-name) ".*\\*NeoTree\\*.*") 10))
 
   (add-to-list 'winum-assign-functions #'winum-assign-9-to-calculator-8-to-flycheck-errors)
