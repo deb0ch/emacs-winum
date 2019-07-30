@@ -155,6 +155,12 @@ result of `winum-get-number-string'."
   :group 'winum
   :type  '(repeat string))
 
+(defcustom winum-ignored-buffers-regex '()
+  "List of regex for buffers to ignore when assigning numbers."
+  :group 'winum
+  :type '(repeat string)
+  :risky t)
+
 (defface winum-face '()
   "Face used for the number in the mode-line."
   :group 'winum)
@@ -538,7 +544,10 @@ windows, however a higher number can be reserved by the user-defined
     (or (not (and (frame-live-p f)
                   (frame-visible-p f)))
         (string= "initial_terminal" (terminal-name f))
-        (member (buffer-name (window-buffer window)) winum-ignored-buffers))))
+        (member (buffer-name (window-buffer window)) winum-ignored-buffers)
+        (cl-some
+         (lambda (regex) (string-match regex (buffer-name (window-buffer window))))
+         winum-ignored-buffers-regex))))
 
 (defun winum--list-windows-in-frame (&optional f)
   "List windows in frame F using natural Emacs ordering."
