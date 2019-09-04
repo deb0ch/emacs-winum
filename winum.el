@@ -1,7 +1,7 @@
 ;;; winum.el --- Navigate windows and frames using numbers.
 ;;
 ;; Copyright (c) 2006-2015 Nikolaj Schumacher
-;; Copyright (c) 2016 Thomas Chauvot de Beauchêne
+;; Copyright (c) 2016-2019 Thomas Chauvot de Beauchêne
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
