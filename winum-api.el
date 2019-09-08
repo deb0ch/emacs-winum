@@ -86,36 +86,42 @@ WINDOW: if specified, the window of which we want to know the number.
       (error "Got a dead window %S" window))))
 
 
-(defun winum--move-buffer-to-window (windownum follow-focus-p)
-  "Move a buffer to a WINDOWNUM.
-FOLLOW-FOCUS-P controls whether focus moves to new window (with
-buffer), or stays on current"
-  (interactive)
-  (let ((b (current-buffer))
-        (w1 (selected-window))
-        (w2 (winum-get-window-by-number windownum)))
-    (unless (eq w1 w2)
-      (set-window-buffer w2 b)
-      (switch-to-prev-buffer)
-      (unrecord-window-buffer w1 b)))
-  (when follow-focus-p (select-window (winum-get-window-by-number windownum))))
+;;;###autoload
+(defun winum-move-buffer-to-window (n &optional follow-focus swap)
+  "Move a buffer to a the window numbered N.
+If FOLLOW-FOCUS is non-nil, the input focus moves to the new
+window with the buffer. If SWAP is non-nil (as provided
+by (interactive \"P\") commands), swap buffers instead (see
+`winum-swap-buffers-with-window')."
+  (if swap
+      (winum-swap-buffers-with-window n follow-focus)
+    (let ((b (current-buffer))
+          (w1 (selected-window))
+          (w2 (winum-get-window-by-number n)))
+      (unless (eq w1 w2)
+        (set-window-buffer w2 b)
+        (switch-to-prev-buffer)
+        (unrecord-window-buffer w1 b)))
+    (when follow-focus
+      (winum-select-window-by-number n))))
 
 
-(defun winum--swap-buffers-to-window (windownum follow-focus-p)
-  "Swap visible buffers between active window and WINDOWNUM.
-FOLLOW-FOCUS-P controls whether focus moves to new window (with
-buffer), or stays on current."
-  (interactive)
+;;;###autoload
+(defun winum-swap-buffers-with-window (n &optional follow-focus)
+  "Swap buffers between the active window and the window numbered N.
+If FOLLOW-FOCUS is non-nil, the input focus moves to the new
+window with the buffer."
   (let* ((b1 (current-buffer))
          (w1 (selected-window))
-         (w2 (winum-get-window-by-number windownum))
+         (w2 (winum-get-window-by-number n))
          (b2 (window-buffer w2)))
     (unless (eq w1 w2)
       (set-window-buffer w1 b2)
       (set-window-buffer w2 b1)
       (unrecord-window-buffer w1 b1)
       (unrecord-window-buffer w2 b2)))
-  (when follow-focus-p (winum-select-window-by-number windownum)))
+  (when follow-focus
+    (winum-select-window-by-number n)))
 
 
 (provide 'winum-api)
