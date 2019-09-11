@@ -268,9 +268,10 @@ Several options are available through Emacs' Customize interface under
 
   Default: '(" *which-key*")
 
-- =winum-ignored-buffers-regex=
+- =winum-ignored-buffers-regexp=
 
-  List of regexes. Matching buffers will be ignored when assigning numbers.
+  List of regexps for buffer names. Matching buffers will be ignored when
+  assigning numbers. See [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Regexps.html][Emacs' documentation on regexps]] for syntax.
 
   Default: '()
 
@@ -320,7 +321,8 @@ available winum options.
         winum-auto-setup-mode-line        t
         winum-format                      " %s "
         winum-mode-line-position          1
-        winum-ignored-buffers             '(" *which-key*"))
+        winum-ignored-buffers             '(" *which-key*")
+        winum-ignored-buffers-regexp      '(" \\*Treemacs-.*"))
 
   (winum-mode)
 #+END_SRC

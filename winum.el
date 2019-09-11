@@ -155,8 +155,9 @@ result of `winum-get-number-string'."
   :group 'winum
   :type  '(repeat string))
 
-(defcustom winum-ignored-buffers-regex '()
-  "List of regex for buffers to ignore when assigning numbers."
+(defcustom winum-ignored-buffers-regexp '()
+  "List of regexps for buffer names to ignore when assigning numbers.
+See Info node `(emacs) Regexps' or Info node `(elisp) Regular Expressions'"
   :group 'winum
   :type '(repeat string)
   :risky t)
@@ -547,7 +548,7 @@ windows, however a higher number can be reserved by the user-defined
         (member (buffer-name (window-buffer window)) winum-ignored-buffers)
         (cl-some
          (lambda (regex) (string-match regex (buffer-name (window-buffer window))))
-         winum-ignored-buffers-regex))))
+         winum-ignored-buffers-regexp))))
 
 (defun winum--list-windows-in-frame (&optional f)
   "List windows in frame F using natural Emacs ordering."
