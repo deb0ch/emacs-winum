@@ -5,6 +5,7 @@
 * Contents :TOC:noexport:
 - [[#introduction][Introduction]]
 - [[#changelog][Changelog]]
+  - [[#sep-11-2019][Sep. 11 2019]]
   - [[#nov-15-2018][Nov. 15 2018]]
   - [[#initial-release-whats-changed-since-window-numbering][Initial release: what's changed since window-numbering]]
 - [[#installation][Installation]]
@@ -28,6 +29,9 @@ This version brings, among other things, support for number sets across multiple
 frames, giving the user a smoother experience of multi-screen Emacs.
 
 * Changelog
+** Sep. 11 2019
+- Added customize variable =winum-ignored-buffers-regexp= to ignored buffers
+  based on regexps.
 ** Nov. 15 2018
 - Added customize variable =winum-format=, a format string to configure how the
   window number appears in the mode-line
