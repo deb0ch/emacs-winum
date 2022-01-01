@@ -14,12 +14,12 @@
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ;;
 ;; Author: Thomas de Beauchêne <thomas.de.beauchene@gmail.com>
 ;; Version: 2.2.0
 ;; Keywords: convenience, frames, windows, multi-screen
-;; URL: http://github.com/deb0ch/winum.el
+;; URL: https://github.com/deb0ch/winum.el
 ;; Created: 2016
 ;; Compatibility: GNU Emacs 24.x
 ;; Package-requires: ((cl-lib "0.5") (dash "2.13.0"))
