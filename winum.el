@@ -21,8 +21,7 @@
 ;; Keywords: convenience, frames, windows, multi-screen
 ;; URL: http://github.com/deb0ch/winum.el
 ;; Created: 2016
-;; Compatibility: GNU Emacs 24.x
-;; Package-requires: ((cl-lib "0.5") (dash "2.13.0"))
+;; Package-Requires: ((emacs "24.1") (cl-lib "0.5") (dash "2.13.0"))
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
