@@ -61,7 +61,7 @@
 
 (defcustom winum-reverse-frame-list nil
   "If t, order frames by reverse order of creation.
-Has effect only when `winum-scope' is not 'frame-local."
+Has effect only when `winum-scope' is not `frame-local'."
   :group 'winum
   :type  'boolean)
 
@@ -89,7 +89,7 @@ Example: always assign *Calculator* the number 9 and *NeoTree* the number 0:
      (t
       nil)))
 
-  (setq winum-assign-func 'my-winum-assign-func)"
+  (setq winum-assign-func \\='my-winum-assign-func)"
   :group 'winum
   :type  'function)
 
@@ -125,9 +125,9 @@ and *NeoTree* the number 0:
     (when (string-match-p (buffer-name) \".*\\*NeoTree\\*.*\") 10))
 
   (add-to-list
-    'winum-assign-functions #'winum-assign-9-to-calculator-8-to-flycheck-errors)
+    \\='winum-assign-functions #\\='winum-assign-9-to-calculator-8-to-flycheck-errors)
   (add-to-list
-    'winum-assign-functions #'winum-assign-0-to-neotree)"
+    \\='winum-assign-functions #\\='winum-assign-0-to-neotree)"
   :group 'winum
   :type  'list)
 
@@ -210,7 +210,7 @@ Used internally by winum to get a number provided a window.")
 (defvar winum--frames-table nil
   "Table linking windows to numbers and numbers to windows for each frame.
 
-Used only when `winum-scope' is 'frame-local to keep track of
+Used only when `winum-scope' is `frame-local' to keep track of
 separate window numbers sets in every frame.
 
 It is a hash table using Emacs frames as keys and cons of the form
@@ -235,9 +235,7 @@ Needed to detect scope changes at runtime.")
 ;;;###autoload
 (define-minor-mode winum-mode
   "A minor mode that allows for managing windows based on window numbers."
-  nil
-  nil
-  winum-keymap
+  :keymap winum-keymap
   :global t
   (if winum-mode
       (winum--init)
